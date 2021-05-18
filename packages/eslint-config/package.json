@@ -1,0 +1,7 @@
+{
+  "name": "@pingcap/eslint-config",
+  "description": "Eslint config for PingCAP FE team",
+  "main": "eslintrc.json",
+  "version": "0.1.0",
+  "license": "MIT"
+}

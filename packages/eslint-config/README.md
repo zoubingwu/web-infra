@@ -1,0 +1,1 @@
+# @pingcap/eslint-config

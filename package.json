@@ -1,0 +1,12 @@
+{
+  "name": "@pingcap/web-infra",
+  "version": "0.1.0",
+  "description": "Web infras for PingCAP FE team",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ]
+}
