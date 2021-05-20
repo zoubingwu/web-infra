@@ -2,6 +2,29 @@
   "name": "@pingcap/webinfra-cli",
   "description": "A helper tool for better web infra integration",
   "license": "MIT",
-  "main": "main.js",
-  "version": "0.1.0"
+  "main": "dist/cli.js",
+  "scripts": {
+    "build": "rollup -c",
+    "prebuild": "rimraf dist"
+  },
+  "bin": {
+    "wi": "bin/cli.js"
+  },
+  "version": "0.1.0",
+  "dependencies": {},
+  "engines": {
+    "node": ">= 12"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/plugin-typescript": "^8.2.1",
+    "cac": "^6.7.3",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.48.0",
+    "shq": "^1.0.2",
+    "tslib": "^2.2.0",
+    "typescript": "^4.2.4"
+  }
 }
