@@ -23,7 +23,7 @@ $ yarn add --dev @pingcap/prettier-config
 
 ```js
 module.exports = {
-  ...require("@pingcap/prettier-config"),
+  ...require('@pingcap/prettier-config'),
   semi: true,
-};
+}
 ```
