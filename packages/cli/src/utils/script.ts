@@ -89,13 +89,7 @@ export const $: TypeOf$ = (
     child.on('exit', (code: number) => {
       child.on('close', () => {
         createLogger($.logLevel).debug(`\n`)
-
-        const res = new ProcessOutput(code, stdout, stderr, combined, stack)
-        if (code === 0) {
-          resolve(res)
-        } else {
-          reject(res)
-        }
+        resolve(new ProcessOutput(code, stdout, stderr, combined, stack))
       })
     })
   })

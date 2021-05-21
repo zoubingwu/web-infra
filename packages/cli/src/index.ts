@@ -32,7 +32,7 @@ cli
       await doctor()
     } catch (e) {
       createLogger(options?.logLevel).error(
-        chalk.red(`error when running check:\n${e.stack}`)
+        chalk.red(`error when running doctor:\n${e.stack}`)
       )
       process.exit(1)
     }
