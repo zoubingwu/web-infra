@@ -4,6 +4,7 @@ import nodeResolve from '@rollup/plugin-node-resolve'
 import typescript from '@rollup/plugin-typescript'
 import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
+import replace from '@rollup/plugin-replace'
 
 /**
  * @type { import('rollup').RollupOptions }
@@ -13,13 +14,23 @@ const config = {
     index: path.resolve(__dirname, 'src/index.ts'),
   },
   plugins: [
+    replace({
+      values: {
+        // cosmiconfig use this way to load js config
+        'commonjsRequire(filePath)': "eval('require')(filePath)",
+      },
+      delimiters: ['', ''],
+      preventAssignment: true,
+    }),
     nodeResolve({ preferBuiltins: true }),
     typescript({
       target: 'es2019',
       include: ['src/**/*.ts'],
       esModuleInterop: true,
     }),
-    commonjs({ extensions: ['.js'] }),
+    commonjs({
+      extensions: ['.js'],
+    }),
     json(),
   ],
   treeshake: {
@@ -35,6 +46,15 @@ const config = {
     externalLiveBindings: false,
     freeze: false,
     sourcemap: true,
+  },
+
+  onwarn(warning, warn) {
+    // we use the eval('require') trick to deal with optional deps
+    if (warning.message.includes('Use of eval')) {
+      return
+    }
+
+    warn(warning)
   },
 }
 
