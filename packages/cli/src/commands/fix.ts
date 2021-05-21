@@ -1,1 +1,1 @@
-export function fix() {}
+export function fix(entry?: string) {}
