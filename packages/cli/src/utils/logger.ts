@@ -26,10 +26,6 @@ export const LogLevels: Record<LogLevel, number> = {
   debug: 4,
 }
 
-let lastType: LogType | undefined
-let lastMsg: string | undefined
-let sameCount = 0
-
 function clearScreen() {
   const repeatCount = process.stdout.rows - 2
   const blank = repeatCount > 0 ? '\n'.repeat(repeatCount) : ''
@@ -71,19 +67,8 @@ export function createLogger(
           return msg
         }
       }
-      if (type === lastType && msg === lastMsg) {
-        sameCount++
-        clear()
-        console[method](format(), chalk.yellow(`(x${sameCount + 1})`))
-      } else {
-        sameCount = 0
-        lastMsg = msg
-        lastType = type
-        if (options.clear) {
-          clear()
-        }
-        console[method](format())
-      }
+
+      console[method](format())
     }
   }
 

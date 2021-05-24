@@ -3,7 +3,7 @@ import { json5, toml } from '../utils/loader'
 import { createLogger } from '../utils/logger'
 import { $ } from '../utils/script'
 import { isFileExist, isNpmModuleInstalled } from '../utils/shell'
-import { createDoctorResult, DoctorResult } from './doctor'
+import { createDoctorResult, DoctorResult } from '../utils/common'
 
 export enum PrettierStatus {
   Good,
@@ -12,7 +12,7 @@ export enum PrettierStatus {
   NotNpmProject,
 }
 
-export function getDescriptivePrettierStatus(
+export function getDescriptivePrettierResult(
   status: PrettierStatus
 ): DoctorResult {
   switch (status) {
@@ -25,8 +25,8 @@ export function getDescriptivePrettierStatus(
       return createDoctorResult('error', 'Prettier is not installed')
     case PrettierStatus.NotNpmProject:
       return createDoctorResult(
-        'warn',
-        'Could not found package.json in current directory.'
+        'error',
+        'Could not find package.json in current directory.'
       )
     case PrettierStatus.WronglyConfigured:
       return createDoctorResult(
@@ -75,15 +75,15 @@ export async function getPrettierConfig() {
   return await explorer.search()
 }
 
-export async function checkPrettier(): Promise<DoctorResult> {
-  createLogger($.logLevel).debug('Checking prettier configs...')
+export async function checkPrettier(): Promise<PrettierStatus> {
+  createLogger($.logLevel).debug('\nChecking Prettier configs...')
 
   if (!(await isFileExist('package.json'))) {
-    return getDescriptivePrettierStatus(PrettierStatus.NotNpmProject)
+    return PrettierStatus.NotNpmProject
   }
 
   if (!(await isNpmModuleInstalled('prettier'))) {
-    return getDescriptivePrettierStatus(PrettierStatus.NotInstalled)
+    return PrettierStatus.NotInstalled
   }
 
   try {
@@ -95,11 +95,11 @@ export async function checkPrettier(): Promise<DoctorResult> {
       )
       delete result.config.$schema
 
-      // TODO check config
+      //TODO compare config and find inconsistency
     }
   } catch (e) {
-    console.log('error', e)
+    createLogger($.logLevel).error(e)
   }
 
-  return getDescriptivePrettierStatus(PrettierStatus.Good)
+  return PrettierStatus.Good
 }

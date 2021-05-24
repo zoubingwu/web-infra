@@ -58,7 +58,7 @@ export const $: TypeOf$ = (
     cmd += s + pieces[++i]
   }
 
-  createLogger($.logLevel).debug(`\n$ ${colorize(cmd)}`)
+  createLogger($.logLevel).debug(`\n===== script: ${colorize(cmd)}`)
 
   return new Promise((resolve, reject) => {
     let options = {
@@ -88,8 +88,9 @@ export const $: TypeOf$ = (
 
     child.on('exit', (code: number) => {
       child.on('close', () => {
-        createLogger($.logLevel).debug(`\n`)
-        resolve(new ProcessOutput(code, stdout, stderr, combined, stack))
+        createLogger($.logLevel).debug(`===== code: ${code}`)
+        const res = new ProcessOutput(code, stdout, stderr, combined, stack)
+        code === 0 ? resolve(res) : reject(res)
       })
     })
   })

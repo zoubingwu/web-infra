@@ -1,44 +1,37 @@
-import chalk from 'chalk'
-import logSymbols from 'log-symbols'
 import { createLogger } from '../utils/logger'
 import { $ } from '../utils/script'
-import { checkPrettier } from './prettier'
-
-export type DoctorResultType = 'warn' | 'error' | 'success'
-
-export interface DoctorResult {
-  type: DoctorResultType
-  result: string
-}
-
-export function createDoctorResult(
-  type: DoctorResultType,
-  res: string
-): DoctorResult {
-  let result
-  if (type === 'error') {
-    result = chalk.red(res)
-  } else if (type === 'warn') {
-    result = chalk.yellow(res)
-  } else {
-    result = chalk.green(res)
-  }
-
-  return { type, result }
-}
-
-export const resultLevelToLogSymbol: Record<DoctorResultType, string> = {
-  success: logSymbols.success,
-  error: logSymbols.error,
-  warn: logSymbols.warning,
-}
+import {
+  checkPrettier,
+  getDescriptivePrettierResult,
+  PrettierStatus,
+} from './prettier'
+import {
+  checkGitHooks,
+  getDescriptiveGitHookResult,
+  GitHookStatus,
+} from './git'
+import { DoctorResult, resultLevelToLogSymbol } from '../utils/common'
 
 export async function doctor() {
   const results = []
 
-  results.push(await checkPrettier())
+  const prettierStatus = await checkPrettier()
+  createLogger($.logLevel).debug(
+    `\nPrettier Status ${PrettierStatus[prettierStatus]}`
+  )
+
+  const gitStatus = await checkGitHooks()
+  createLogger($.logLevel).debug(
+    `\nGit hooks Status ${GitHookStatus[gitStatus]}`
+  )
+
+  results.push(
+    getDescriptivePrettierResult(prettierStatus),
+    getDescriptiveGitHookResult(gitStatus)
+  )
 
   printResult(results)
+  printTip(results)
 }
 
 export function printResult(results: DoctorResult[]) {
@@ -55,3 +48,5 @@ export function printResult(results: DoctorResult[]) {
     createLogger($.logLevel).info(`\nTry \`wi fix\` to do a quick fix.`)
   }
 }
+
+export function printTip(results: DoctorResult[]) {}
