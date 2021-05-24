@@ -1,5 +1,3 @@
-import { createLogger } from '../utils/logger'
-import { $ } from '../utils/script'
 import {
   checkPrettier,
   getDescriptivePrettierResult,
@@ -11,18 +9,20 @@ import {
   GitHookStatus,
 } from './git'
 import { DoctorResult, resultLevelToLogSymbol } from '../utils/common'
+import { createLogger } from '../utils/logger'
+import * as shell from '../utils/shell'
 
 export async function doctor() {
   const results = []
 
   const prettierStatus = await checkPrettier()
-  createLogger($.logLevel).debug(
-    `\nPrettier Status ${PrettierStatus[prettierStatus]}`
+  createLogger(shell.$.logLevel).debug(
+    `\nPrettier Status shell.${PrettierStatus[prettierStatus]}`
   )
 
   const gitStatus = await checkGitHooks()
-  createLogger($.logLevel).debug(
-    `\nGit hooks Status ${GitHookStatus[gitStatus]}`
+  createLogger(shell.$.logLevel).debug(
+    `\nGit hooks Status shell.${GitHookStatus[gitStatus]}`
   )
 
   results.push(
@@ -37,15 +37,17 @@ export async function doctor() {
 export function printResult(results: DoctorResult[]) {
   results.forEach(r => {
     const level = r.type === 'success' ? 'info' : r.type
-    createLogger($.logLevel)[level](
+    createLogger(shell.$.logLevel)[level](
       resultLevelToLogSymbol[r.type] + ' ' + r.result
     )
   })
 
   if (results.every(r => r.type !== 'error')) {
-    createLogger($.logLevel).info(`\nYou passed every check, enjoy coding!`)
+    createLogger(shell.$.logLevel).info(
+      `\nYou passed every check, enjoy coding!`
+    )
   } else {
-    createLogger($.logLevel).info(`\nTry \`wi fix\` to do a quick fix.`)
+    createLogger(shell.$.logLevel).info(`\nTry \`wi fix\` to do a quick fix.`)
   }
 }
 

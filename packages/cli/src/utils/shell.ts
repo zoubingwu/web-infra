@@ -1,15 +1,18 @@
 import path from 'path'
 import semver from 'semver'
+import { exec } from 'child_process'
+import shq from 'shq'
+import chalk from 'chalk'
+import { createLogger, LogLevel } from './logger'
 import { DEPENDENCY_TYPE } from './constants'
-import { $ } from './script'
 
-export async function getProjectRoot(): Promise<string> {
+async function getProjectRoot(): Promise<string> {
   const { stdout: gitDir } = await $`git rev-parse --git-dir`
   const rootPath = path.join(gitDir, '..')
   return rootPath
 }
 
-export async function getPacakgeJson(dir: string) {
+async function getPacakgeJson(dir: string): Promise<any> {
   try {
     const { stdout } = await $`cat ${dir}/package.json`
     return JSON.parse(stdout)
@@ -18,19 +21,17 @@ export async function getPacakgeJson(dir: string) {
   }
 }
 
-export async function getProjectRootPackgeJson() {
+async function getProjectRootPackgeJson() {
   const rootDir = await getProjectRoot()
   return await getPacakgeJson(rootDir)
 }
 
-export async function getCurrentDirectoryPackageJson() {
+async function getCurrentDirectoryPackageJson() {
   const { stdout: cwd } = await $`pwd`
   return await getPacakgeJson(cwd.trim())
 }
 
-export async function isNpmModuleInstalled(
-  moduleName: string
-): Promise<boolean> {
+async function isNpmModuleInstalled(moduleName: string): Promise<boolean> {
   try {
     const packageJson = await getProjectRootPackgeJson()
     const devDep = packageJson[DEPENDENCY_TYPE.DEV] ?? {}
@@ -41,7 +42,7 @@ export async function isNpmModuleInstalled(
   }
 }
 
-export async function isFileExist(fileName: string) {
+async function isFileExist(fileName: string) {
   try {
     await $`test -f ${fileName}`
     return true
@@ -50,7 +51,7 @@ export async function isFileExist(fileName: string) {
   }
 }
 
-export async function isInsideGitRepo() {
+async function isInsideGitRepo() {
   try {
     const { stdout } = await $`git rev-parse --is-inside-work-tree`
     return stdout.trim() === 'true'
@@ -59,7 +60,7 @@ export async function isInsideGitRepo() {
   }
 }
 
-export async function setNpmScript(name: string, script: string) {
+async function setNpmScript(name: string, script: string) {
   try {
     await $`npm set-script ${name} "${script}"`
   } catch {
@@ -67,19 +68,19 @@ export async function setNpmScript(name: string, script: string) {
   }
 }
 
-export type HookTypes =
+type HookTypes =
   | 'pre-commit'
   | 'prepare-commit-msg'
   | 'commit-msg'
   | 'post-commit'
 
-export async function addHuskyGitHook(name: HookTypes, script: string) {
+async function addHuskyGitHook(name: HookTypes, script: string) {
   await $`npx husky add .husky/${name} "${script}"`
 }
 
-export type ModuleInHooks = 'prettier' | 'eslint' | 'pretty-quick'
+type ModuleInHooks = 'prettier' | 'eslint' | 'pretty-quick'
 
-export async function hasHuskyHook(
+async function hasHuskyGitHook(
   type: HookTypes,
   names: ModuleInHooks | ModuleInHooks[]
 ): Promise<boolean> {
@@ -94,9 +95,7 @@ export async function hasHuskyHook(
   }
 }
 
-export async function getInstalledModuleVersion(
-  name: string
-): Promise<string | null> {
+async function getInstalledModuleVersion(name: string): Promise<string | null> {
   try {
     const { stdout } = await $`npm list ${name} | grep ${name}`
     const versions: [string, semver.SemVer][] = stdout
@@ -113,4 +112,113 @@ export async function getInstalledModuleVersion(
   } catch (e) {
     return null
   }
+}
+
+class ProcessOutput {
+  constructor(
+    public code: number,
+    public stdout: string,
+    public stderr: string,
+    private combined: string,
+    public stack?: string
+  ) {}
+
+  toString() {
+    return this.combined
+  }
+
+  get exitCode() {
+    return this.code
+  }
+}
+
+function substitute(arg: any) {
+  if (arg instanceof ProcessOutput) {
+    return arg.stdout.replace(/\n$/, '')
+  }
+  return arg.toString()
+}
+
+function colorize(cmd: string) {
+  return cmd.replace(/^\w+(\s|$)/, substr => {
+    return chalk.greenBright(substr)
+  })
+}
+
+type ShellRunner = {
+  (pieces: TemplateStringsArray, ...args: any[]): Promise<ProcessOutput>
+  logLevel?: LogLevel
+}
+
+const $: ShellRunner = (
+  pieces: TemplateStringsArray,
+  ...args: any[]
+): Promise<ProcessOutput> => {
+  let stack = new Error()?.stack
+  let cmd = pieces[0],
+    i = 0
+
+  while (i < args.length) {
+    let s
+    if (Array.isArray(args[i])) {
+      s = args[i].map((x: any) => shq(substitute(x))).join(' ')
+    } else {
+      s = shq(substitute(args[i]))
+    }
+    cmd += s + pieces[++i]
+  }
+
+  createLogger($.logLevel).debug(`\n===== script: ${colorize(cmd)}`)
+
+  return new Promise((resolve, reject) => {
+    let options = {
+      windowsHide: true,
+    }
+
+    let child = exec(cmd, options)
+    let stdout = '',
+      stderr = '',
+      combined = ''
+
+    child?.stdout?.on('data', data => {
+      if ($.logLevel === 'debug') {
+        process.stdout.write(data)
+      }
+      stdout += data
+      combined += data
+    })
+
+    child?.stderr?.on('data', data => {
+      if ($.logLevel === 'debug') {
+        process.stdout.write(data)
+      }
+      stderr += data
+      combined += data
+    })
+
+    child.on('exit', (code: number) => {
+      child.on('close', () => {
+        createLogger($.logLevel).debug(`===== code: ${code}`)
+        const res = new ProcessOutput(code, stdout, stderr, combined, stack)
+        code === 0 ? resolve(res) : reject(res)
+      })
+    })
+  })
+}
+
+const setScriptRunnerLogLevel = (level: LogLevel = 'info') =>
+  ($.logLevel = level)
+
+export {
+  $,
+  getProjectRootPackgeJson,
+  getCurrentDirectoryPackageJson,
+  isNpmModuleInstalled,
+  isFileExist,
+  isInsideGitRepo,
+  setNpmScript,
+  addHuskyGitHook,
+  hasHuskyGitHook,
+  getInstalledModuleVersion,
+  setScriptRunnerLogLevel,
 }

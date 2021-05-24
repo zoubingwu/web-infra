@@ -1,8 +1,7 @@
 import { cosmiconfig } from 'cosmiconfig'
 import { json5, toml } from '../utils/loader'
 import { createLogger } from '../utils/logger'
-import { $ } from '../utils/script'
-import { isFileExist, isNpmModuleInstalled } from '../utils/shell'
+import * as shell from '../utils/shell'
 import { createDoctorResult, DoctorResult } from '../utils/common'
 
 export enum PrettierStatus {
@@ -36,13 +35,13 @@ export function getDescriptivePrettierResult(
   }
 }
 
-export function getPrettierQuickFixByStatus(status: PrettierStatus) {
+export function getPrettierQuickFix(status: PrettierStatus) {
   switch (status) {
     case PrettierStatus.Good:
       return () => {}
     case PrettierStatus.NotInstalled:
       return async () => {
-        await $`yarn add prettier pretty-quick -D`
+        await shell.$`yarn add prettier pretty-quick -D`
       }
     case PrettierStatus.NotNpmProject:
       return () => {}
@@ -76,13 +75,13 @@ export async function getPrettierConfig() {
 }
 
 export async function checkPrettier(): Promise<PrettierStatus> {
-  createLogger($.logLevel).debug('\nChecking Prettier configs...')
+  createLogger(shell.$.logLevel).debug('\nChecking Prettier configs...')
 
-  if (!(await isFileExist('package.json'))) {
+  if (!(await shell.isFileExist('package.json'))) {
     return PrettierStatus.NotNpmProject
   }
 
-  if (!(await isNpmModuleInstalled('prettier'))) {
+  if (!(await shell.isNpmModuleInstalled('prettier'))) {
     return PrettierStatus.NotInstalled
   }
 
@@ -90,15 +89,15 @@ export async function checkPrettier(): Promise<PrettierStatus> {
     const result = await getPrettierConfig()
 
     if (result) {
-      createLogger($.logLevel).debug(
-        `Found your prettier configuration file at ${result.filepath}`
+      createLogger(shell.$.logLevel).debug(
+        `Found your prettier configuration file at shell.${result.filepath}`
       )
       delete result.config.$schema
 
       //TODO compare config and find inconsistency
     }
   } catch (e) {
-    createLogger($.logLevel).error(e)
+    createLogger(shell.$.logLevel).error(e)
   }
 
   return PrettierStatus.Good

@@ -1,7 +1,6 @@
 import semver from 'semver'
 import { createLogger } from '../utils/logger'
 import * as shell from '../utils/shell'
-import { $ } from '../utils/script'
 import { createDoctorResult, DoctorResult } from '../utils/common'
 
 export enum GitHookStatus {
@@ -35,16 +34,16 @@ export function getDescriptiveGitHookResult(
   }
 }
 
-export async function fixGitHookByStatus(status: GitHookStatus) {
+export async function getQuickfixForGitHook(status: GitHookStatus) {
   switch (status) {
     case GitHookStatus.Good:
       return
     case GitHookStatus.HuskyNotInstalled:
-      await $`yarn add husky -D && npm set-script "prepare:husky" "husky install" && npx husky install`
+      await shell.$`yarn add husky -D && npm set-script "prepare:husky" "husky install" && npx husky install`
       await shell.addHuskyGitHook('pre-commit', 'npx pretty-quick --staged')
       return
     case GitHookStatus.LegacyHuskyInstalled:
-      await $`npx husky-init && npm exec -- github:typicode/husky-4-to-6 --remove-v4-config`
+      await shell.$`npx husky-init && npm exec -- github:typicode/husky-4-to-6 --remove-v4-config`
       return
     case GitHookStatus.PrettierHookNotFound:
       await shell.addHuskyGitHook('pre-commit', 'npx pretty-quick --staged')
@@ -53,7 +52,7 @@ export async function fixGitHookByStatus(status: GitHookStatus) {
 }
 
 export async function checkGitHooks(): Promise<GitHookStatus> {
-  createLogger($.logLevel).debug('\nChecking Git hooks...')
+  createLogger(shell.$.logLevel).debug('\nChecking Git hooks...')
 
   if (!(await shell.isInsideGitRepo())) {
     return GitHookStatus.NotGitRepo
@@ -69,7 +68,9 @@ export async function checkGitHooks(): Promise<GitHookStatus> {
     return GitHookStatus.LegacyHuskyInstalled
   }
 
-  if (!(await shell.hasHuskyHook('pre-commit', ['prettier', 'pretty-quick']))) {
+  if (
+    !(await shell.hasHuskyGitHook('pre-commit', ['prettier', 'pretty-quick']))
+  ) {
     return GitHookStatus.PrettierHookNotFound
   }
 

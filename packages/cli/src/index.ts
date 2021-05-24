@@ -3,7 +3,7 @@ import chalk from 'chalk'
 import { doctor } from './commands/doctor'
 import { fix } from './commands/fix'
 import { createLogger, LogLevel } from './utils/logger'
-import { setScriptRunnerLogLevel } from './utils/script'
+import * as shell from './utils/shell'
 
 const cli = cac('wi')
 
@@ -23,11 +23,11 @@ cli.command('[commands] [options]').action(() => {
 
 cli
   .command(
-    'doctor [root]',
+    'doctor',
     'Run a full check based on a list of internal conventions.'
   )
   .action(async (root: string, options?: GlobalOptions) => {
-    setScriptRunnerLogLevel(options?.logLevel)
+    shell.setScriptRunnerLogLevel(options?.logLevel)
     try {
       await doctor()
     } catch (e) {
@@ -39,9 +39,13 @@ cli
   })
 
 cli
-  .command('fix [scope]', 'Run a quick fix or only for certain scope.')
+  .command(
+    'fix [scope]',
+    'Run a quick fix or only for certain scope. eg fix prettier'
+  )
   .example('wi fix prettier')
   .example('wi fix eslint')
+  .example('wi fix git')
   .action(async (entry: string) => {
     try {
       await fix(entry)
