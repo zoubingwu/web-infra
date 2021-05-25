@@ -1,10 +1,13 @@
 import path from 'path'
 import semver from 'semver'
+import fs from 'fs/promises'
+import { promisify } from 'util'
 import { exec } from 'child_process'
 import shq from 'shq'
 import chalk from 'chalk'
+import detectIndent from 'detect-indent'
 import { createLogger, LogLevel } from './logger'
-import { DEPENDENCY_TYPE } from './constants'
+import { DEPENDENCY_TYPE, DEFAULT_INDENT } from './constants'
 
 async function getProjectRoot(): Promise<string> {
   const { stdout: gitDir } = await $`git rev-parse --git-dir`
@@ -12,10 +15,21 @@ async function getProjectRoot(): Promise<string> {
   return rootPath
 }
 
-async function getPacakgeJson(dir: string): Promise<any> {
+interface PackageJSON {
+  path: string
+  json: any
+  indent: string
+}
+
+async function getPacakgeJson(dir: string): Promise<PackageJSON> {
   try {
-    const { stdout } = await $`cat ${dir}/package.json`
-    return JSON.parse(stdout)
+    const file = await fs.readFile(path.resolve(dir, 'package.json'), 'utf8')
+    const indent = detectIndent(file).indent || DEFAULT_INDENT
+    return {
+      path: `${dir}/package.json`,
+      json: JSON.parse(file),
+      indent,
+    }
   } catch {
     throw new Error('Could not find package.json.')
   }
@@ -33,7 +47,7 @@ async function getCurrentDirectoryPackageJson() {
 
 async function isNpmModuleInstalled(moduleName: string): Promise<boolean> {
   try {
-    const packageJson = await getProjectRootPackgeJson()
+    const { json: packageJson } = await getProjectRootPackgeJson()
     const devDep = packageJson[DEPENDENCY_TYPE.DEV] ?? {}
     const directDep = packageJson[DEPENDENCY_TYPE.DIRECT] ?? {}
     return moduleName in directDep || moduleName in devDep
@@ -62,7 +76,7 @@ async function isInsideGitRepo() {
 
 async function setNpmScript(name: string, script: string) {
   try {
-    await $`npm set-script ${name} "${script}"`
+    await $`npm set-script ${name} ${script}`
   } catch {
     //TODO npm set-script requires npm v7, do fallback here
   }
@@ -75,7 +89,7 @@ type HookTypes =
   | 'post-commit'
 
 async function addHuskyGitHook(name: HookTypes, script: string) {
-  await $`npx husky add .husky/${name} "${script}"`
+  await $`npx husky add .husky/${name} ${script}`
 }
 
 type ModuleInHooks = 'prettier' | 'eslint' | 'pretty-quick'
@@ -129,6 +143,10 @@ class ProcessOutput {
 
   get exitCode() {
     return this.code
+  }
+
+  get message() {
+    return this.stderr
   }
 }
 
@@ -206,8 +224,9 @@ const $: ShellRunner = (
   })
 }
 
-const setScriptRunnerLogLevel = (level: LogLevel = 'info') =>
-  ($.logLevel = level)
+const sleep = promisify(setTimeout)
+
+const setLogLevel = (level: LogLevel = 'info') => ($.logLevel = level)
 
 export {
   $,
@@ -220,5 +239,6 @@ export {
   addHuskyGitHook,
   hasHuskyGitHook,
   getInstalledModuleVersion,
-  setScriptRunnerLogLevel,
+  sleep,
+  setLogLevel,
 }

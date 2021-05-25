@@ -4,3 +4,5 @@ export enum DEPENDENCY_TYPE {
   DIRECT = 'dependencies',
   OPTIONAL = 'optionalDependencies',
 }
+
+export const DEFAULT_INDENT = '  '

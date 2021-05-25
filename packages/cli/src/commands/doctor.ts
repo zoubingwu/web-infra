@@ -1,54 +1,36 @@
-import {
-  checkPrettier,
-  getDescriptivePrettierResult,
-  PrettierStatus,
-} from './prettier'
-import {
-  checkGitHooks,
-  getDescriptiveGitHookResult,
-  GitHookStatus,
-} from './git'
+import * as prettier from './prettier'
+import * as git from './git'
 import { DoctorResult, resultLevelToLogSymbol } from '../utils/common'
 import { createLogger } from '../utils/logger'
 import * as shell from '../utils/shell'
 
 export async function doctor() {
   const results = []
+  const logger = createLogger(shell.$.logLevel)
 
-  const prettierStatus = await checkPrettier()
-  createLogger(shell.$.logLevel).debug(
-    `\nPrettier Status shell.${PrettierStatus[prettierStatus]}`
-  )
+  const prettierStatus = await prettier.check()
+  logger.info(`Prettier Status: ${prettier.Status[prettierStatus]}`)
 
-  const gitStatus = await checkGitHooks()
-  createLogger(shell.$.logLevel).debug(
-    `\nGit hooks Status shell.${GitHookStatus[gitStatus]}`
-  )
+  const gitStatus = await git.check()
+  logger.info(`Git hooks status: ${git.Status[gitStatus]}`)
 
-  results.push(
-    getDescriptivePrettierResult(prettierStatus),
-    getDescriptiveGitHookResult(gitStatus)
-  )
+  results.push(prettier.getResult(prettierStatus))
+  results.push(git.getResult(gitStatus))
 
   printResult(results)
-  printTip(results)
 }
 
 export function printResult(results: DoctorResult[]) {
+  const logger = createLogger(shell.$.logLevel)
+
   results.forEach(r => {
     const level = r.type === 'success' ? 'info' : r.type
-    createLogger(shell.$.logLevel)[level](
-      resultLevelToLogSymbol[r.type] + ' ' + r.result
-    )
+    logger[level](resultLevelToLogSymbol[r.type] + ' ' + r.result)
   })
 
   if (results.every(r => r.type !== 'error')) {
-    createLogger(shell.$.logLevel).info(
-      `\nYou passed every check, enjoy coding!`
-    )
+    logger.info(`\nYou passed every check, enjoy coding!`)
   } else {
-    createLogger(shell.$.logLevel).info(`\nTry \`wi fix\` to do a quick fix.`)
+    logger.info(`\nTry \`wi fix\` to do a quick fix.`)
   }
 }
-
-export function printTip(results: DoctorResult[]) {}

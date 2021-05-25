@@ -7,7 +7,8 @@ import * as shell from './utils/shell'
 
 const cli = cac('wi')
 
-export interface GlobalOptions {
+interface GlobalOptions {
+  '--': string[]
   logLevel?: LogLevel
   l?: LogLevel
 }
@@ -26,30 +27,31 @@ cli
     'doctor',
     'Run a full check based on a list of internal conventions.'
   )
-  .action(async (root: string, options?: GlobalOptions) => {
-    shell.setScriptRunnerLogLevel(options?.logLevel)
+  .action(async (options: GlobalOptions) => {
+    shell.setLogLevel(options?.logLevel)
     try {
       await doctor()
     } catch (e) {
       createLogger(options?.logLevel).error(
-        chalk.red(`error when running doctor:\n${e.stack}`)
+        chalk.red(`error when running doctor, ${e.message}:\n${e.stack}`)
       )
       process.exit(1)
     }
   })
 
 cli
-  .command(
-    'fix [scope]',
-    'Run a quick fix or only for certain scope. eg fix prettier'
-  )
+  .command('fix', 'Run a quick fix or only for certain scope. eg fix prettier')
   .example('wi fix prettier')
   .example('wi fix eslint')
   .example('wi fix git')
-  .action(async (entry: string) => {
+  .action(async (options: GlobalOptions) => {
+    shell.setLogLevel(options?.logLevel)
     try {
-      await fix(entry)
-    } catch {
+      await fix()
+    } catch (e) {
+      createLogger(options?.logLevel).error(
+        chalk.red(`error when running fix, ${e.message}:\n${e.stack}`)
+      )
       process.exit(1)
     }
   })

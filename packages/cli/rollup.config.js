@@ -48,6 +48,8 @@ const config = {
     sourcemap: true,
   },
 
+  external: ['fs/promises'],
+
   onwarn(warning, warn) {
     // we use the eval('require') trick to deal with optional deps
     if (warning.message.includes('Use of eval')) {
