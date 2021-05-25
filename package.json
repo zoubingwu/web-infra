@@ -1,5 +1,5 @@
 {
-  "name": "@pingcap/web-infra",
+  "name": "@tife/web-infra",
   "version": "0.1.0",
   "private": true,
   "description": "Web infras for PingCAP FE team",

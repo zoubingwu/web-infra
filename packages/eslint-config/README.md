@@ -1,1 +1,1 @@
-# @pingcap/eslint-config
+# @tife/eslint-config

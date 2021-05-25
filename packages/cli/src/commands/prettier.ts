@@ -4,6 +4,7 @@ import { createLogger } from '../utils/logger'
 import * as shell from '../utils/shell'
 import * as fs from '../utils/fs'
 import { createDoctorResult, DoctorResult } from '../utils/common'
+import prettierConfig from '../../../prettier-config/package.json'
 
 export enum Status {
   Good,
@@ -44,7 +45,7 @@ export async function fix(status: Status) {
       await shell.$`yarn add prettier pretty-quick -D`
       const { path, json, indent } =
         await shell.getCurrentDirectoryPackageJson()
-      json.prettier = '@pingcap/prettier-config'
+      json.prettier = prettierConfig.name
       fs.writeFilePreservingEol(path, JSON.stringify(json, null, indent) + '\n')
       return
     case Status.PrettierWronglyConfigured:

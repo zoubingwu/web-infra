@@ -1,5 +1,5 @@
 {
-  "name": "@pingcap/prettier-config",
+  "name": "@tife/prettier-config",
   "description": "Prettier config for PingCAP FE team",
   "license": "MIT",
   "main": "index.json",
