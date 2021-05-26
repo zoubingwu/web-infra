@@ -41,7 +41,7 @@ cli
   })
 
 cli
-  .command('fix', 'Run a quick fix or only for certain scope. eg fix prettier')
+  .command('fix', 'Run a full check and do quick fix')
   .example('wi fix prettier')
   .example('wi fix eslint')
   .example('wi fix git')
