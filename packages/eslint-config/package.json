@@ -1,5 +1,5 @@
 {
-  "name": "@tife/eslint-config",
+  "name": "@ti-fe/eslint-config",
   "description": "Eslint config for PingCAP FE team",
   "main": "eslintrc.json",
   "version": "0.1.0",

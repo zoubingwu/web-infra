@@ -1,1 +1,1 @@
-# @tife/eslint-config
+# @ti-fe/eslint-config

@@ -1,4 +1,4 @@
-# @tife/prettier-config
+# @ti-fe/prettier-config
 
 Prettier config for PingCAP FE team.
 
@@ -7,7 +7,7 @@ Prettier config for PingCAP FE team.
 **Install**:
 
 ```bash
-$ yarn add --dev @tife/prettier-config
+$ yarn add --dev @ti-fe/prettier-config
 ```
 
 **Edit `package.json`**:
@@ -15,7 +15,7 @@ $ yarn add --dev @tife/prettier-config
 ```jsonc
 {
   // ...
-  "prettier": "@tife/prettier-config"
+  "prettier": "@ti-fe/prettier-config"
 }
 ```
 
@@ -23,7 +23,7 @@ $ yarn add --dev @tife/prettier-config
 
 ```js
 module.exports = {
-  ...require('@tife/prettier-config'),
+  ...require('@ti-fe/prettier-config'),
   semi: true,
 }
 ```

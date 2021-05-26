@@ -2,7 +2,7 @@
 
 A monorepo to maintain infra tools and others that can be shared and reused across projects for PingCAP FE team.
 
-Each one of them will be published under `@tife` scope. The initial implementation includes the followings:
+Each one of them will be published under `@ti-fe` scope. The initial implementation includes the followings:
 
 ## cli
 
@@ -30,13 +30,13 @@ shared Prettier configs.
 
 Or you could manually do the followings:
 
-1. `yarn add prettier @tife/prettier-config`
+1. `yarn add prettier @ti-fe/prettier-config`
 2. Edit your `package.json`
 
 ```jsonc
 {
   // ...
-  "prettier": "@tife/prettier-config"
+  "prettier": "@ti-fe/prettier-config"
 }
 ```
 

@@ -1,7 +1,15 @@
 {
-  "name": "@tife/prettier-config",
+  "name": "@ti-fe/prettier-config",
   "description": "Prettier config for PingCAP FE team",
   "license": "MIT",
   "main": "index.json",
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ti-FE/web-infra.git",
+    "directory": "packages/prettier-config"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
