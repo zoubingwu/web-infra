@@ -1,0 +1,26 @@
+{
+  "name": "@ti-fe/create-app",
+  "version": "0.1.0",
+  "files": [
+    "index.js",
+    "template-*"
+  ],
+  "bin": {
+    "create-app": "index.js"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ti-FE/web-infra.git",
+    "directory": "packages/create-app"
+  },
+  "dependencies": {
+    "chalk": "^4.1.1",
+    "enquirer": "^2.3.6",
+    "minimist": "^1.2.5"
+  }
+}
