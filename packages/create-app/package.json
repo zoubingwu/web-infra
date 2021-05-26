@@ -18,6 +18,9 @@
     "url": "git+https://github.com/Ti-FE/web-infra.git",
     "directory": "packages/create-app"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "chalk": "^4.1.1",
     "enquirer": "^2.3.6",
