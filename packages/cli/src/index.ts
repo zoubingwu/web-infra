@@ -27,6 +27,7 @@ cli
     'doctor',
     'Run a full check based on a list of internal conventions.'
   )
+  .alias('check')
   .action(async (options: GlobalOptions) => {
     shell.setLogLevel(options?.logLevel)
     try {

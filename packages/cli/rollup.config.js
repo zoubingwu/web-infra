@@ -26,7 +26,6 @@ const config = {
     typescript({
       target: 'es2019',
       include: ['src/**/*.ts'],
-      esModuleInterop: true,
     }),
     commonjs({
       extensions: ['.js'],

@@ -33,26 +33,33 @@ export function getResult(status: Status): DoctorResult {
 }
 
 export async function fix(status: Status) {
+  const logger = createLogger(shell.$.logLevel)
+
   switch (status) {
     case Status.Good:
       return
     case Status.NotGitRepo:
-      await shell.$`git init`
+      return
     case Status.HuskyNotInstalled:
+      logger.info('Installing husky...')
       await shell.$`yarn add husky -D`
       await shell.setNpmScript('prepare', 'husky install')
       await shell.$`npm run prepare`
+      logger.info('Add hooks with husky...')
       await shell.addHuskyGitHook('pre-commit', 'npx pretty-quick --staged')
-      return
+      break
     case Status.LegacyHuskyInstalled:
       await shell.$`npx husky-init && npm exec -- github:typicode/husky-4-to-6 --remove-v4-config`
-      return
+      break
     case Status.PrettierHookNotFound:
       await shell.setNpmScript('prepare', 'husky install')
       await shell.$`npm run prepare`
+      logger.info('Add hooks with husky...')
       await shell.addHuskyGitHook('pre-commit', 'npx pretty-quick --staged')
-      return
+      break
   }
+
+  logger.info('Git hooks fixed!')
 }
 
 export async function check(): Promise<Status> {

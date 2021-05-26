@@ -10,7 +10,6 @@ export async function fix() {
   logger.info(`Prettier status: ${prettier.Status[prettierStatus]}`)
 
   if (prettierStatus !== prettier.Status.Good) {
-    logger.info(`Fixing Prettier...`)
     await prettier.fix(prettierStatus)
   }
 
@@ -18,7 +17,6 @@ export async function fix() {
   logger.info(`Git hooks status: ${git.Status[gitStatus]}`)
 
   if (gitStatus !== git.Status.Good) {
-    logger.info(`Fixing Git hooks...`)
     await git.fix(gitStatus)
   }
 

@@ -36,21 +36,30 @@ export function getResult(status: Status): DoctorResult {
 }
 
 export async function fix(status: Status) {
+  const logger = createLogger(shell.$.logLevel)
   switch (status) {
     case Status.Good:
       return
     case Status.NotNpmProject:
-      return
+      break
     case Status.PrettierNotInstalled:
-      await shell.$`yarn add prettier pretty-quick -D`
+      logger.info(
+        `Installing prettier, pretty-quick and ${prettierConfig.name}...`
+      )
+      await shell.$`yarn add prettier pretty-quick ${prettierConfig.name} -D`
       const { path, json, indent } =
         await shell.getCurrentDirectoryPackageJson()
       json.prettier = prettierConfig.name
-      fs.writeFilePreservingEol(path, JSON.stringify(json, null, indent) + '\n')
-      return
+      logger.info(`Setting up prettier configuration...`)
+      await fs.writeFilePreservingEol(
+        path,
+        JSON.stringify(json, null, indent) + '\n'
+      )
+      break
     case Status.PrettierWronglyConfigured:
-      return
+      break
   }
+  logger.info(`Prettier fixed!`)
 }
 
 export async function getPrettierConfig() {
