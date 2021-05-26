@@ -1,5 +1,5 @@
 {
-  "name": "@ti-fe/webinfra-cli",
+  "name": "@ti-fe/cli",
   "description": "A helper tool for better web infra integration",
   "license": "MIT",
   "main": "dist/cli.js",
@@ -15,9 +15,18 @@
   "engines": {
     "node": ">= 12"
   },
-  "dependencies": {
-    "semver": "^7.3.5"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ti-FE/web-infra.git",
+    "directory": "packages/cli"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
   "devDependencies": {
     "@iarna/toml": "^2.2.5",
     "@rollup/plugin-commonjs": "^19.0.0",
@@ -35,6 +44,7 @@
     "nodemon": "^2.0.7",
     "rimraf": "^3.0.2",
     "rollup": "^2.48.0",
+    "semver": "^7.3.5",
     "shq": "^1.0.2",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4"
