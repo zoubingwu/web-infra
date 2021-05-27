@@ -47,10 +47,21 @@ async function getCurrentDirectoryPackageJson() {
 
 async function isNpmModuleInstalled(moduleName: string): Promise<boolean> {
   try {
-    const { json: packageJson } = await getProjectRootPackgeJson()
-    const devDep = packageJson[DEPENDENCY_TYPE.DEV] ?? {}
-    const directDep = packageJson[DEPENDENCY_TYPE.DIRECT] ?? {}
-    return moduleName in directDep || moduleName in devDep
+    const [{ json: rootPackageJson }, { json: currentPackageJson }] =
+      await Promise.all([
+        getProjectRootPackgeJson(),
+        getCurrentDirectoryPackageJson(),
+      ])
+    const devDep = currentPackageJson[DEPENDENCY_TYPE.Dev] ?? {}
+    const directDep = currentPackageJson[DEPENDENCY_TYPE.Direct] ?? {}
+    const rootDevDep = rootPackageJson[DEPENDENCY_TYPE.Dev] ?? {}
+    const rootDirectDep = rootPackageJson[DEPENDENCY_TYPE.Direct] ?? {}
+    return (
+      moduleName in directDep ||
+      moduleName in devDep ||
+      moduleName in rootDevDep ||
+      moduleName in rootDirectDep
+    )
   } catch {
     return false
   }

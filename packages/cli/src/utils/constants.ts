@@ -1,8 +1,8 @@
 export enum DEPENDENCY_TYPE {
-  PEER = 'peerDependencies',
-  DEV = 'devDependencies',
-  DIRECT = 'dependencies',
-  OPTIONAL = 'optionalDependencies',
+  Peer = 'peerDependencies',
+  Dev = 'devDependencies',
+  Direct = 'dependencies',
+  Optional = 'optionalDependencies',
 }
 
 export const DEFAULT_INDENT = '  '
