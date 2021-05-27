@@ -74,9 +74,8 @@ export async function check(): Promise<Status> {
     return Status.HuskyNotInstalled
   }
 
-  await shell.getInstalledModuleVersion('debug')
   const huskyVersion = await shell.getInstalledModuleVersion('husky')
-  if (semver.satisfies(huskyVersion as string, ' < 6.0.0')) {
+  if (semver.satisfies(huskyVersion as string, '<6')) {
     return Status.LegacyHuskyInstalled
   }
 

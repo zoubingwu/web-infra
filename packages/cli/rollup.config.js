@@ -47,7 +47,7 @@ const config = {
     sourcemap: true,
   },
 
-  external: ['fs/promises'],
+  external: ['fs/promises', 'semver'],
 
   onwarn(warning, warn) {
     // we use the eval('require') trick to deal with optional deps
