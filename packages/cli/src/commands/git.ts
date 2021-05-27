@@ -2,6 +2,7 @@ import semver from 'semver'
 import { createLogger } from '../utils/logger'
 import * as shell from '../utils/shell'
 import { createDoctorResult, DoctorResult } from '../utils/common'
+import chalk from 'chalk'
 
 export enum Status {
   Good,
@@ -14,7 +15,10 @@ export enum Status {
 export function getResult(status: Status): DoctorResult {
   switch (status) {
     case Status.Good:
-      return createDoctorResult('success', 'Git hooks are properly installed.')
+      return createDoctorResult(
+        'success',
+        'Git hooks are properly installed and configured.'
+      )
     case Status.NotGitRepo:
       return createDoctorResult('error', 'Current directory is not a Git repo.')
     case Status.HuskyNotInstalled:
@@ -39,22 +43,33 @@ export async function fix(status: Status) {
     case Status.Good:
       return
     case Status.NotGitRepo:
+      logger.info(
+        chalk.yellow(
+          `Skipping...You need to initialize current directory as git repo first.`
+        )
+      )
       return
     case Status.HuskyNotInstalled:
       logger.info('Installing husky...')
       await shell.$`yarn add husky -D`
       await shell.setNpmScript('prepare', 'husky install')
       await shell.$`npm run prepare`
-      logger.info('Add hooks with husky...')
+      logger.info('Adding hooks with husky...')
       await shell.addHuskyGitHook('pre-commit', 'npx pretty-quick --staged')
       break
     case Status.LegacyHuskyInstalled:
-      await shell.$`npx husky-init && npm exec -- github:typicode/husky-4-to-6 --remove-v4-config`
-      break
+      logger.info(
+        chalk.yellow(
+          `Skipping...to migrate to latest version of husky, see ${chalk.underline(
+            'https://typicode.github.io/husky/#/?id=migrate-from-v4-to-v6'
+          )}`
+        )
+      )
+      return
     case Status.PrettierHookNotFound:
       await shell.setNpmScript('prepare', 'husky install')
       await shell.$`npm run prepare`
-      logger.info('Add hooks with husky...')
+      logger.info('Adding hooks with husky...')
       await shell.addHuskyGitHook('pre-commit', 'npx pretty-quick --staged')
       break
   }
