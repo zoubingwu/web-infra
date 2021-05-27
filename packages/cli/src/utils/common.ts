@@ -1,5 +1,7 @@
 import chalk from 'chalk'
 import logSymbols from 'log-symbols'
+import * as shell from './shell'
+import { createLogger } from './logger'
 
 export type DoctorResultType = 'warn' | 'error' | 'success'
 
@@ -28,4 +30,24 @@ export function createDoctorResult(
   }
 
   return { type, result }
+}
+
+export abstract class Doctor {
+  public abstract name: string
+
+  protected abstract getStatus(): Promise<number>
+
+  protected abstract getDescriptiveStatus(status: number): string
+
+  public abstract getDoctorResult(status: number): DoctorResult
+
+  public abstract fix(status: number): Promise<void>
+
+  public async check() {
+    const logger = createLogger(shell.$.logLevel)
+    logger.info(`Checking ${this.name} status...`)
+    const res = await this.getStatus()
+    logger.info(`${this.name} status: ${this.getDescriptiveStatus(res)}`)
+    return res
+  }
 }

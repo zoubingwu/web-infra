@@ -1,21 +1,20 @@
-import * as prettier from './prettier'
-import * as git from './git'
+import { prettierDoctor } from './prettier'
+import { gitDoctor } from './git'
+import { eslintDoctor } from './eslint'
 import { DoctorResult, resultLevelToLogSymbol } from '../utils/common'
 import { createLogger } from '../utils/logger'
 import * as shell from '../utils/shell'
 
 export async function doctor() {
   const results = []
-  const logger = createLogger(shell.$.logLevel)
 
-  const prettierStatus = await prettier.check()
-  logger.info(`Prettier Status: ${prettier.Status[prettierStatus]}`)
+  const prettierStatus = await prettierDoctor.check()
+  const gitStatus = await gitDoctor.check()
+  const eslintStatus = await eslintDoctor.check()
 
-  const gitStatus = await git.check()
-  logger.info(`Git hooks status: ${git.Status[gitStatus]}`)
-
-  results.push(prettier.getResult(prettierStatus))
-  results.push(git.getResult(gitStatus))
+  results.push(prettierDoctor.getDoctorResult(prettierStatus))
+  results.push(gitDoctor.getDoctorResult(gitStatus))
+  results.push(eslintDoctor.getDoctorResult(eslintStatus))
 
   printResult(results)
 }

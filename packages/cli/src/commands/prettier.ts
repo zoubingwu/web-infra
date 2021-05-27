@@ -3,66 +3,19 @@ import { json5, toml } from '../utils/loader'
 import { createLogger } from '../utils/logger'
 import * as shell from '../utils/shell'
 import * as fs from '../utils/fs'
-import { createDoctorResult, DoctorResult } from '../utils/common'
+import { createDoctorResult, Doctor } from '../utils/common'
 import prettierConfig from '../../../prettier-config/package.json'
+import chalk from 'chalk'
 
-export enum Status {
+enum PrettierStatus {
   Good,
   PrettierNotInstalled,
   PrettierWronglyConfigured,
+  PrettierConfigNotFound,
   NotNpmProject,
 }
 
-export function getResult(status: Status): DoctorResult {
-  switch (status) {
-    case Status.Good:
-      return createDoctorResult(
-        'success',
-        'Prettier is installed and properly configured.'
-      )
-    case Status.PrettierNotInstalled:
-      return createDoctorResult('error', 'Prettier is not installed')
-    case Status.NotNpmProject:
-      return createDoctorResult(
-        'error',
-        'Could not find package.json in current directory.'
-      )
-    case Status.PrettierWronglyConfigured:
-      return createDoctorResult(
-        'error',
-        'Prettier is installed but not properly configured.'
-      )
-  }
-}
-
-export async function fix(status: Status) {
-  const logger = createLogger(shell.$.logLevel)
-  switch (status) {
-    case Status.Good:
-      return
-    case Status.NotNpmProject:
-      break
-    case Status.PrettierNotInstalled:
-      logger.info(
-        `Installing prettier, pretty-quick and ${prettierConfig.name}...`
-      )
-      await shell.$`yarn add prettier pretty-quick ${prettierConfig.name} -D`
-      const { path, json, indent } =
-        await shell.getCurrentDirectoryPackageJson()
-      json.prettier = prettierConfig.name
-      logger.info(`Setting up prettier configuration...`)
-      await fs.writeFilePreservingEol(
-        path,
-        JSON.stringify(json, null, indent) + '\n'
-      )
-      break
-    case Status.PrettierWronglyConfigured:
-      break
-  }
-  logger.info(`Prettier fixed!`)
-}
-
-export async function getPrettierConfig() {
+async function getPrettierConfig() {
   const explorer = cosmiconfig('prettier', {
     searchPlaces: [
       'package.json',
@@ -86,30 +39,105 @@ export async function getPrettierConfig() {
   return await explorer.search()
 }
 
-export async function check(): Promise<Status> {
-  const logger = createLogger(shell.$.logLevel)
-  logger.info(`Checking Prettier status...`)
+class PrettierDoctor extends Doctor {
+  name = 'Prettier'
 
-  if (!(await shell.isFileExist('package.json'))) {
-    return Status.NotNpmProject
-  }
+  protected async getStatus() {
+    const logger = createLogger(shell.$.logLevel)
 
-  if (!(await shell.isNpmModuleInstalled('prettier'))) {
-    return Status.PrettierNotInstalled
-  }
-
-  try {
-    const result = await getPrettierConfig()
-
-    if (result) {
-      logger.info(`Found Prettier configuration at ${result.filepath}`)
-      delete result.config.$schema
-
-      //TODO compare config and find inconsistency
+    if (!(await shell.isFileExist('package.json'))) {
+      return PrettierStatus.NotNpmProject
     }
-  } catch (e) {
-    logger.error(e)
+
+    if (!(await shell.isNpmModuleInstalled('prettier'))) {
+      return PrettierStatus.PrettierNotInstalled
+    }
+
+    try {
+      const result = await getPrettierConfig()
+
+      if (result) {
+        logger.info(`Found Prettier configuration at ${result.filepath}`)
+        delete result.config.$schema
+
+        //TODO compare config and find inconsistency
+      }
+    } catch (e) {
+      logger.error(e)
+      return PrettierStatus.PrettierConfigNotFound
+    }
+
+    return PrettierStatus.Good
   }
 
-  return Status.Good
+  protected getDescriptiveStatus(status: PrettierStatus) {
+    return PrettierStatus[status]
+  }
+
+  getDoctorResult(status: PrettierStatus) {
+    switch (status) {
+      case PrettierStatus.Good:
+        return createDoctorResult(
+          'success',
+          'Prettier is installed and properly configured.'
+        )
+      case PrettierStatus.PrettierNotInstalled:
+        return createDoctorResult('error', 'Prettier is not installed')
+      case PrettierStatus.NotNpmProject:
+        return createDoctorResult(
+          'error',
+          'Could not find package.json in current directory.'
+        )
+      case PrettierStatus.PrettierWronglyConfigured:
+        return createDoctorResult(
+          'error',
+          'Prettier is installed but not properly configured.'
+        )
+      case PrettierStatus.PrettierConfigNotFound:
+        return createDoctorResult(
+          'error',
+          'Prettier is installed but could not find configs.'
+        )
+    }
+  }
+
+  async fix(status: PrettierStatus) {
+    const logger = createLogger(shell.$.logLevel)
+    switch (status) {
+      case PrettierStatus.Good:
+        return
+      case PrettierStatus.NotNpmProject:
+        logger.info(
+          chalk.yellow(
+            `Skipping...Could not find package.json in current directory.`
+          )
+        )
+        return
+      case PrettierStatus.PrettierNotInstalled:
+        logger.info(
+          `Installing prettier, pretty-quick and ${prettierConfig.name}...`
+        )
+        await shell.$`yarn add prettier pretty-quick ${prettierConfig.name} -D`
+        const { path, json, indent } =
+          await shell.getCurrentDirectoryPackageJson()
+        json.prettier = prettierConfig.name
+        logger.info(`Setting up prettier configuration...`)
+        await fs.writeFilePreservingEol(
+          path,
+          JSON.stringify(json, null, indent) + '\n'
+        )
+        break
+      case PrettierStatus.PrettierWronglyConfigured:
+        break
+      case PrettierStatus.PrettierConfigNotFound:
+        logger.info(`Setting up prettier configuration...`)
+        await shell.$`yarn add ${prettierConfig.name} -D`
+        break
+      default:
+        break
+    }
+    logger.info(`Prettier fixed!`)
+  }
 }
+
+export const prettierDoctor = new PrettierDoctor()

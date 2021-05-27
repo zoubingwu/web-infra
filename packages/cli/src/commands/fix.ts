@@ -1,24 +1,20 @@
-import * as prettier from './prettier'
-import * as git from './git'
+import { prettierDoctor } from './prettier'
+import { gitDoctor } from './git'
+import { eslintDoctor } from './eslint'
 import * as shell from '../utils/shell'
 import { createLogger } from '../utils/logger'
 
 export async function fix() {
   const logger = createLogger(shell.$.logLevel)
-  const prettierStatus = await prettier.check()
 
-  logger.info(`Prettier status: ${prettier.Status[prettierStatus]}`)
+  const prettierStatus = await prettierDoctor.check()
+  await prettierDoctor.fix(prettierStatus)
 
-  if (prettierStatus !== prettier.Status.Good) {
-    await prettier.fix(prettierStatus)
-  }
+  const gitStatus = await gitDoctor.check()
+  await gitDoctor.fix(gitStatus)
 
-  const gitStatus = await git.check()
-  logger.info(`Git hooks status: ${git.Status[gitStatus]}`)
+  const eslintStatus = await eslintDoctor.check()
+  await eslintDoctor.fix(eslintStatus)
 
-  if (gitStatus !== git.Status.Good) {
-    await git.fix(gitStatus)
-  }
-
-  logger.info('\nEverything is fine now! Enjoy your coding!')
+  logger.info('\nDone! Enjoy your coding!')
 }
