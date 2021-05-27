@@ -7,7 +7,7 @@ import shq from 'shq'
 import chalk from 'chalk'
 import detectIndent from 'detect-indent'
 import { createLogger, LogLevel } from './logger'
-import { DEPENDENCY_TYPE, DEFAULT_INDENT } from './constants'
+import { DEFAULT_INDENT } from './constants'
 
 async function getProjectRoot(): Promise<string> {
   const { stdout: gitDir } = await $`git rev-parse --git-dir`
@@ -41,27 +41,13 @@ async function getProjectRootPackgeJson() {
 }
 
 async function getCurrentDirectoryPackageJson() {
-  const { stdout: cwd } = await $`pwd`
-  return await getPacakgeJson(cwd.trim())
+  return await getPacakgeJson(process.cwd())
 }
 
 async function isNpmModuleInstalled(moduleName: string): Promise<boolean> {
   try {
-    const [{ json: rootPackageJson }, { json: currentPackageJson }] =
-      await Promise.all([
-        getProjectRootPackgeJson(),
-        getCurrentDirectoryPackageJson(),
-      ])
-    const devDep = currentPackageJson[DEPENDENCY_TYPE.Dev] ?? {}
-    const directDep = currentPackageJson[DEPENDENCY_TYPE.Direct] ?? {}
-    const rootDevDep = rootPackageJson[DEPENDENCY_TYPE.Dev] ?? {}
-    const rootDirectDep = rootPackageJson[DEPENDENCY_TYPE.Direct] ?? {}
-    return (
-      moduleName in directDep ||
-      moduleName in devDep ||
-      moduleName in rootDevDep ||
-      moduleName in rootDirectDep
-    )
+    const version = await getInstalledModuleVersion(moduleName)
+    return Boolean(version)
   } catch {
     return false
   }
