@@ -18,9 +18,19 @@ cli.option(
   `[string] silent | error | warn | info | debug`
 )
 
-cli.command('[commands] [options]').action(() => {
-  cli.outputHelp()
-})
+async function runDoctor(options: GlobalOptions) {
+  shell.setLogLevel(options?.logLevel)
+  try {
+    await doctor()
+  } catch (e) {
+    createLogger(options?.logLevel).error(
+      chalk.red(`error when running doctor, ${e.message}:\n${e.stack}`)
+    )
+    process.exit(1)
+  }
+}
+
+cli.command('[commands] [options]').action(runDoctor)
 
 cli
   .command(
@@ -28,17 +38,7 @@ cli
     'Run a full check based on a list of internal conventions.'
   )
   .alias('check')
-  .action(async (options: GlobalOptions) => {
-    shell.setLogLevel(options?.logLevel)
-    try {
-      await doctor()
-    } catch (e) {
-      createLogger(options?.logLevel).error(
-        chalk.red(`error when running doctor, ${e.message}:\n${e.stack}`)
-      )
-      process.exit(1)
-    }
-  })
+  .action(runDoctor)
 
 cli
   .command('fix', 'Run a full check and do quick fix')
