@@ -176,7 +176,7 @@ function emptyDir(dir) {
   if (root !== cwd) {
     console.log(`  cd ${path.relative(cwd, root)}`)
   }
-  console.log(`  yarn`)
+  console.log(`  yarn && yarn prepare`)
   console.log(`  yarn start`)
   console.log()
 })()
