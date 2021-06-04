@@ -1,0 +1,6 @@
+{
+  "name": "@ti-fe/docs",
+  "description": "Coding conventions for PingCAP FE team.",
+  "version": "0.1.0",
+  "license": "MIT"
+}
