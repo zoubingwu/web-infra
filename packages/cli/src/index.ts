@@ -2,6 +2,7 @@ import { cac } from 'cac'
 import chalk from 'chalk'
 import { doctor } from './commands/doctor'
 import { fix } from './commands/fix'
+import { review, ReviewOptions } from './commands/review'
 import { createLogger, LogLevel } from './utils/logger'
 import * as shell from './utils/shell'
 
@@ -30,7 +31,7 @@ async function runDoctor(options: GlobalOptions) {
   }
 }
 
-cli.command('[commands] [options]').action(runDoctor)
+cli.command('<commands> [options]').action(runDoctor)
 
 cli
   .command(
@@ -52,6 +53,23 @@ cli
     } catch (e) {
       createLogger(options?.logLevel).error(
         chalk.red(`error when running fix, ${e.message}:\n${e.stack}`)
+      )
+      process.exit(1)
+    }
+  })
+
+cli
+  .command('review <pr>', 'Fetch and review pull request.')
+  .option('-c, --clean', 'Clean fetched pull request.')
+  .example('wi review 932')
+  .example('wi review 932 --clean')
+  .action(async (pr: string, options: GlobalOptions & ReviewOptions) => {
+    shell.setLogLevel(options?.logLevel)
+    try {
+      await review(pr, { clean: options.clean })
+    } catch (e) {
+      createLogger(options?.logLevel).error(
+        chalk.red(`error when running github, ${e.message}:\n${e.stack}`)
       )
       process.exit(1)
     }
