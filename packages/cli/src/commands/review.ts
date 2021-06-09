@@ -27,9 +27,9 @@ async function cleanPullRequest(pr: string) {
     const prBranch = `pr/${prNumber}`
     const mainBranch = await getMainBranch()
 
-    logger.info(`Reset head to ${prBranch}_top`)
+    logger.info(`Resetting HEAD to ${prBranch}_top...`)
     await shell.$`git reset ${prBranch}_top`
-    logger.info(`Checkout to ${mainBranch} branch`)
+    logger.info(`Checkout to ${mainBranch} branch...`)
     await shell.$`git checkout ${mainBranch}`
     logger.info(`Deleting all pr related branches...`)
     await shell.$`git branch | grep "${prBranch}" | xargs git branch -D`
@@ -43,6 +43,9 @@ async function fetchPullRequest(pr: string) {
     logger.error('Unexpected pr number. exiting...')
     process.exit(1)
   }
+  const remotes = await getRemotes()
+  const selectedRemote = await getSelectedRemote(remotes)
+
   const prNumber = parseInt(pr)
   const prBranch = `pr/${prNumber}`
   const prBranchBase = `${prBranch}_base`
@@ -60,14 +63,15 @@ async function fetchPullRequest(pr: string) {
   }
 
   const mainBranch = await getMainBranch()
-  const remotes = await getRemotes()
-  const selectedRemote = await getSelectedRemote(remotes)
+
+  logger.info(`Fetching latest change of ${selectedRemote}/${mainBranch}...`)
   await shell.$`git fetch ${selectedRemote} ${mainBranch}`
+
   const latestCommitOnMaster = (
     await shell.$`git rev-parse ${selectedRemote}/${mainBranch}`
   ).stdout.trim()
 
-  logger.info(`Checking ${colorizedPrBranch} branch is exist in local...`)
+  logger.info(`Cleaning local ${colorizedPrBranch} branch...`)
   let hasLocalPrBranch = false
   try {
     await shell.$`git branch | grep "${prBranch}"`
@@ -77,6 +81,10 @@ async function fetchPullRequest(pr: string) {
   if (hasLocalPrBranch) {
     logger.info(`Found branches related to ${colorizedPrNumber}, deleting...`)
     shell.$`git branch | grep "${prBranch}" | xargs git branch -D`
+  } else {
+    logger.info(
+      `Skipping, ${colorizedPrBranch} branch was not found, now fetch from remote.`
+    )
   }
 
   logger.info(
@@ -89,35 +97,29 @@ async function fetchPullRequest(pr: string) {
 
   const latestCommitOnPr = (await shell.$`git rev-parse HEAD`).stdout.trim()
 
-  logger.info(`Counting commit count for pull request #${prNumber}...`)
+  logger.info(`Counting commit for #${prNumber}...`)
   const commitCount = parseInt(
     (
       await shell.$`git log ${latestCommitOnMaster}..${latestCommitOnPr} --pretty=oneline | wc -l`
     ).stdout
   )
-  logger.info(
-    `Found ${chalk.green(commitCount)} commits for pull request #${prNumber}`
-  )
 
   await shell.$`git branch -f ${prBranchBase} ${prBranchTop}~${commitCount}`
-  logger.info('')
+
   logger.info(
-    `Listing all ${chalk.green(
-      commitCount
-    )} commits from pr ${colorizedPrNumber}:`
+    `Found ${chalk.green(commitCount)} ${
+      commitCount === 1 ? 'commit' : 'commit'
+    } for #${prNumber}:`
   )
-  logger.info('===========================================')
   const logs = (
     await shell.$`git log --oneline --color ${prBranch}_base..${prBranch}_top`
   ).stdout
+  logger.info('')
   logger.info(logs.trim())
-  logger.info('===========================================')
   logger.info('')
 
   await shell.$`git checkout --force -b ${prBranch} ${prBranchTop}`
-  logger.info(
-    'Reset head to pr base, all changed files show up as unstaged files.'
-  )
+  logger.info('Reset HEAD to pr base, all changed files show up as unstaged.')
   await shell.$`git reset ${prBranchBase}`
   logger.info(
     'You can start review now! Stage reviewed files to track your review progress.'
