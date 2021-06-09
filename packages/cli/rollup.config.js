@@ -44,7 +44,7 @@ const config = {
     format: 'cjs',
     externalLiveBindings: false,
     freeze: false,
-    sourcemap: true,
+    sourcemap: false,
   },
 
   external: ['fs/promises', 'semver'],
