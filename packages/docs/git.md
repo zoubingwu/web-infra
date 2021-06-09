@@ -12,9 +12,11 @@
 
 - Run tests and make sure all tests pass.
 
-- Before push, run `git pull --rebase` to make sure you have latest changes in local, resolve conflicts if there are any.
+- Before push, run **`git pull --rebase`** or **`git pull upstream master--rebase`** (assuming you have remote repo named as upstream, change it accodingly!) to make sure you have latest changes in local, resolve conflicts if there are any.
 
-- Push chagnes to the forked repo under your name instead of the original one.
+- **Always use _rebase_ to keep commit history clean!**
+
+- Push changes to the forked repo under your name instead of the original one.
 
 - Your PR will be reviewed by two maintainers, who may request some changes.
 
