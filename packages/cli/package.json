@@ -1,17 +1,18 @@
 {
   "name": "@ti-fe/cli",
+  "version": "0.7.0",
   "description": "A helper tool for better web infra integration",
   "license": "MIT",
   "main": "dist/cli.js",
   "scripts": {
     "build": "rollup -c",
     "watch": "nodemon --exec \"yarn build\" -e ts",
-    "prebuild": "rimraf dist"
+    "prebuild": "rimraf dist",
+    "prepublish": "npm run build"
   },
   "bin": {
     "wi": "bin/cli.js"
   },
-  "version": "0.6.0",
   "engines": {
     "node": ">= 12",
     "npm": ">= 7"
