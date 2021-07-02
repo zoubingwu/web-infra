@@ -254,4 +254,8 @@ function tryGitInit(cwd) {
   console.log(`  yarn`)
   console.log(`  yarn start`)
   console.log()
+  console.log(
+    `Also you could use our cli for a quick linter/formatter setup :)\n`
+  )
+  console.log(`  npx wi fix`)
 })()

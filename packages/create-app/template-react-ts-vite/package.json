@@ -4,8 +4,7 @@
   "scripts": {
     "start": "vite",
     "build": "tsc && vite build",
-    "serve": "vite preview",
-    "prepare": "wi fix"
+    "serve": "vite preview"
   },
   "dependencies": {
     "react": "^17.0.0",
