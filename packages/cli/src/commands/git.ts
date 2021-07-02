@@ -102,8 +102,8 @@ class GitDoctor extends Doctor {
       await shell.setNpmScript(
         'prepare',
         `cd \`git rev-parse --show-toplevel\` && husky install ${cwd.replace(
-          root,
-          './'
+          root + '/',
+          ''
         )}/.husky`
       )
     }
