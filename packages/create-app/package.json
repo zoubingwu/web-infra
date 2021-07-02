@@ -6,7 +6,7 @@
     "template-*"
   ],
   "bin": {
-    "create-tife-app": "index.js"
+    "create-app": "index.js"
   },
   "license": "MIT",
   "main": "index.js",
