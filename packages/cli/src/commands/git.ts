@@ -69,6 +69,54 @@ class GitDoctor extends Doctor {
     }
   }
 
+  async getPreCommitScript() {
+    const root = await shell.getProjectRoot()
+    const cwd = process.cwd()
+    const ispackageJsonSameLevelWithGit = root === cwd
+
+    if (ispackageJsonSameLevelWithGit) {
+      return `npx pretty-quick --staged`
+    }
+
+    return (
+      `formatter=${
+        '$' + '(pwd)' + cwd.replace(root, '')
+      }/node_modules/.bin/pretty-quick \n` +
+      `if test -f "$formatter"; then \n` +
+      `  $formatter --pattern "**/*.*(ts|tsx|js|jsx|html|css)" --staged \n` +
+      `fi`
+    )
+  }
+
+  async installHusky() {
+    const logger = createLogger(shell.$.logLevel)
+    logger.info('Installing husky...')
+    await shell.$`yarn add husky -D`
+    const root = await shell.getProjectRoot()
+    const cwd = process.cwd()
+    const ispackageJsonSameLevelWithGit = root === cwd
+    if (ispackageJsonSameLevelWithGit) {
+      await shell.setNpmScript('prepare', 'husky install')
+    } else {
+      logger.info(`Found git root is not the same level with package.json`)
+      await shell.setNpmScript(
+        'prepare',
+        `cd \`git rev-parse --show-toplevel\` && husky install ${cwd.replace(
+          root,
+          './'
+        )}/.husky`
+      )
+    }
+    await shell.$`npm run prepare`
+  }
+
+  async addPreCommitPrettierHook() {
+    const logger = createLogger(shell.$.logLevel)
+    logger.info('Adding prettier hooks with husky...')
+    const script = await this.getPreCommitScript()
+    await shell.addHuskyGitHook('pre-commit', script)
+  }
+
   async fix(status: GitStatus) {
     const logger = createLogger(shell.$.logLevel)
 
@@ -83,12 +131,8 @@ class GitDoctor extends Doctor {
         )
         return
       case GitStatus.HuskyNotInstalled:
-        logger.info('Installing husky...')
-        await shell.$`yarn add husky -D`
-        await shell.setNpmScript('prepare', 'husky install')
-        await shell.$`npm run prepare`
-        logger.info('Adding hooks with husky...')
-        await shell.addHuskyGitHook('pre-commit', 'npx pretty-quick --staged')
+        await this.installHusky()
+        await this.addPreCommitPrettierHook()
         break
       case GitStatus.LegacyHuskyInstalled:
         logger.info(
@@ -100,10 +144,8 @@ class GitDoctor extends Doctor {
         )
         return
       case GitStatus.PrettierHookNotFound:
-        await shell.setNpmScript('prepare', 'husky install')
-        await shell.$`npm run prepare`
-        logger.info('Adding hooks with husky...')
-        await shell.addHuskyGitHook('pre-commit', 'npx pretty-quick --staged')
+        await this.installHusky() // make sure husky is properly configured
+        await this.addPreCommitPrettierHook()
         break
     }
 

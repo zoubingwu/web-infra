@@ -10,9 +10,8 @@ import { createLogger, LogLevel } from './logger'
 import { DEFAULT_INDENT } from './constants'
 
 async function getProjectRoot(): Promise<string> {
-  const { stdout: gitDir } = await $`git rev-parse --git-dir`
-  const rootPath = path.join(gitDir, '..')
-  return rootPath
+  const { stdout: root } = await $`git rev-parse --show-toplevel`
+  return root.trim()
 }
 
 interface PackageJSON {
@@ -86,7 +85,16 @@ type HookTypes =
   | 'post-commit'
 
 async function addHuskyGitHook(name: HookTypes, script: string) {
-  await $`npx husky add .husky/${name} ${script}`
+  // npx husky add can't deal with script like `echo '$(pwd)' so we use our own implementation`
+  const filename = `.husky/${name}`
+  if (await isFileExist(filename)) {
+    await fs.appendFile(filename, script + '\n')
+  } else {
+    await fs.writeFile(
+      filename,
+      '#!/bin/sh\n. "$(dirname "$0")/_/husky.sh"\n\n' + script + '\n'
+    )
+  }
 }
 
 type ModuleInHooks = 'prettier' | 'eslint' | 'pretty-quick'
@@ -96,8 +104,7 @@ async function hasHuskyGitHook(
   names: ModuleInHooks | ModuleInHooks[]
 ): Promise<boolean> {
   try {
-    const rootPath = await getProjectRoot()
-    const huskyPath = path.join(rootPath, '.husky', type)
+    const huskyPath = path.join(process.cwd(), '.husky', type)
     const { stdout } = await $`cat ${huskyPath.trim()}`
     const checkingModuleNames = Array.isArray(names) ? names : [names]
     return checkingModuleNames.some(name => stdout.includes(name))
@@ -227,6 +234,7 @@ const setLogLevel = (level: LogLevel = 'info') => ($.logLevel = level)
 
 export {
   $,
+  getProjectRoot,
   getProjectRootPackgeJson,
   getCurrentDirectoryPackageJson,
   isNpmModuleInstalled,
