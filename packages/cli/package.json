@@ -1,6 +1,6 @@
 {
   "name": "@ti-fe/cli",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "A helper tool for better web infra integration",
   "license": "MIT",
   "main": "dist/index.js",
