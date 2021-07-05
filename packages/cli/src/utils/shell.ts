@@ -94,6 +94,7 @@ async function addHuskyGitHook(name: HookTypes, script: string) {
       filename,
       '#!/bin/sh\n. "$(dirname "$0")/_/husky.sh"\n\n' + script + '\n'
     )
+    await fs.chmod(filename, '755')
   }
 }
 
