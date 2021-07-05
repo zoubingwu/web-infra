@@ -258,4 +258,5 @@ function tryGitInit(cwd) {
     `Also you could use our cli for a quick linter/formatter setup :)\n`
   )
   console.log(`  npx wi fix`)
+  console.log()
 })()
