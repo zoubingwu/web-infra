@@ -1,7 +1,13 @@
-import React from 'react'
+import { Provider } from 'react-redux'
+import { store } from './models'
+import Layout from './layout'
 
 function App() {
-  return <div className="App">Hello world from Ti-FE</div>
+  return (
+    <Provider store={store}>
+      <Layout />
+    </Provider>
+  )
 }
 
 export default App
