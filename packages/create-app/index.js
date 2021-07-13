@@ -15,11 +15,6 @@ const FRAMEWORKS = [
     color: cyan,
     variants: [
       {
-        name: 'react-ts',
-        display: 'TypeScript',
-        color: blue,
-      },
-      {
         name: 'react-ts-vite',
         display: 'TypeScript',
         color: yellow,
@@ -28,9 +23,7 @@ const FRAMEWORKS = [
   },
 ]
 
-const TEMPLATES = FRAMEWORKS.map(
-  f => (f.variants && f.variants.map(v => v.name)) || [f.name]
-).reduce((a, b) => a.concat(b), [])
+const TEMPLATES = FRAMEWORKS.map(f => (f.variants && f.variants.map(v => v.name)) || [f.name]).reduce((a, b) => a.concat(b), [])
 
 const renameFiles = {
   _gitignore: '.gitignore',
@@ -46,9 +39,7 @@ function copy(src, dest) {
 }
 
 function isValidPackageName(projectName) {
-  return /^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(
-    projectName
-  )
+  return /^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(projectName)
 }
 
 function toValidPackageName(projectName) {
@@ -128,19 +119,14 @@ function tryGitInit(cwd) {
           name: 'projectName',
           message: 'Project name:',
           initial: defaultProjectName,
-          onState: state =>
-            (targetDir = state.value.trim() || defaultProjectName),
+          onState: state => (targetDir = state.value.trim() || defaultProjectName),
         },
 
         {
-          type: () =>
-            !fs.existsSync(targetDir) || isEmpty(targetDir) ? null : 'confirm',
+          type: () => (!fs.existsSync(targetDir) || isEmpty(targetDir) ? null : 'confirm'),
           name: 'overwrite',
           message: () =>
-            (targetDir === '.'
-              ? 'Current directory'
-              : `Target directory "${targetDir}"`) +
-            ` is not empty. Remove existing files and continue?`,
+            (targetDir === '.' ? 'Current directory' : `Target directory "${targetDir}"`) + ` is not empty. Remove existing files and continue?`,
         },
 
         {
@@ -158,17 +144,14 @@ function tryGitInit(cwd) {
           name: 'packageName',
           message: 'Package name:',
           initial: () => toValidPackageName(targetDir),
-          validate: dir =>
-            isValidPackageName(dir) || 'Invalid package.json name',
+          validate: dir => isValidPackageName(dir) || 'Invalid package.json name',
         },
 
         {
           type: template && TEMPLATES.includes(template) ? null : 'select',
           name: 'framework',
           message:
-            template && !TEMPLATES.includes(template)
-              ? `"${template}" isn't a valid template. Please choose from below: `
-              : 'Select a framework:',
+            template && !TEMPLATES.includes(template) ? `"${template}" isn't a valid template. Please choose from below: ` : 'Select a framework:',
           initial: 0,
           choices: FRAMEWORKS.map(framework => {
             const frameworkColor = framework.color
@@ -180,8 +163,7 @@ function tryGitInit(cwd) {
         },
 
         {
-          type: framework =>
-            framework && framework.variants ? 'select' : null,
+          type: framework => (framework && framework.variants ? 'select' : null),
           name: 'variant',
           message: 'Select a variant:',
           // @ts-ignore
@@ -222,9 +204,7 @@ function tryGitInit(cwd) {
   const templateDir = path.join(__dirname, `template-${template}`)
 
   const write = (file, content) => {
-    const targetPath = renameFiles[file]
-      ? path.join(root, renameFiles[file])
-      : path.join(root, file)
+    const targetPath = renameFiles[file] ? path.join(root, renameFiles[file]) : path.join(root, file)
     if (content) {
       fs.writeFileSync(targetPath, content)
     } else {
@@ -254,9 +234,7 @@ function tryGitInit(cwd) {
   console.log(`  yarn`)
   console.log(`  yarn start`)
   console.log()
-  console.log(
-    `Also you could use our cli for a quick linter/formatter setup :)\n`
-  )
+  console.log(`Also you could use our cli for a quick linter/formatter setup :)\n`)
   console.log(`  npx wi fix`)
   console.log()
 })()
