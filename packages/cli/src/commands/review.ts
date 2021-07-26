@@ -1,5 +1,6 @@
 import chalk from 'chalk'
 import prompts from 'prompts'
+
 import { createLogger } from '../utils/logger'
 import * as shell from '../utils/shell'
 
@@ -23,7 +24,7 @@ function isNumeric(value: string) {
 async function cleanPullRequest(pr: string) {
   const logger = createLogger(shell.$.logLevel)
   if (isNumeric(pr)) {
-    const prNumber = parseInt(pr)
+    const prNumber = parseInt(pr, 10)
     const prBranch = `pr/${prNumber}`
     const mainBranch = await getMainBranch()
 
@@ -46,7 +47,7 @@ async function fetchPullRequest(pr: string) {
   const remotes = await getRemotes()
   const selectedRemote = await getSelectedRemote(remotes)
 
-  const prNumber = parseInt(pr)
+  const prNumber = parseInt(pr, 10)
   const prBranch = `pr/${prNumber}`
   const prBranchBase = `${prBranch}_base`
   const prBranchTop = `${prBranch}_top`
@@ -67,9 +68,7 @@ async function fetchPullRequest(pr: string) {
   logger.info(`Fetching latest change of ${selectedRemote}/${mainBranch}...`)
   await shell.$`git fetch ${selectedRemote} ${mainBranch}`
 
-  const latestCommitOnMaster = (
-    await shell.$`git rev-parse ${selectedRemote}/${mainBranch}`
-  ).stdout.trim()
+  const latestCommitOnMaster = (await shell.$`git rev-parse ${selectedRemote}/${mainBranch}`).stdout.trim()
 
   logger.info(`Cleaning local ${colorizedPrBranch} branch...`)
   let hasLocalPrBranch = false
@@ -82,38 +81,22 @@ async function fetchPullRequest(pr: string) {
     logger.info(`Found branches related to ${colorizedPrNumber}, deleting...`)
     shell.$`git branch | grep "${prBranch}" | xargs git branch -D`
   } else {
-    logger.info(
-      `Skipping, ${colorizedPrBranch} branch was not found, now fetch from remote.`
-    )
+    logger.info(`Skipping, ${colorizedPrBranch} branch was not found, now fetch from remote.`)
   }
 
-  logger.info(
-    `Fetching pull request ${colorizedPrNumber} into branch range: ${chalk.yellow(
-      prBranchBase
-    )}..${chalk.yellow(prBranchTop)}`
-  )
+  logger.info(`Fetching pull request ${colorizedPrNumber} into branch range: ${chalk.yellow(prBranchBase)}..${chalk.yellow(prBranchTop)}`)
   await shell.$`git fetch -f ${remotes[selectedRemote]} pull/${prNumber}/head:${prBranchTop}`
   await shell.$`git checkout ${prBranchTop}`
 
   const latestCommitOnPr = (await shell.$`git rev-parse HEAD`).stdout.trim()
 
   logger.info(`Counting commit for #${prNumber}...`)
-  const commitCount = parseInt(
-    (
-      await shell.$`git log ${latestCommitOnMaster}..${latestCommitOnPr} --pretty=oneline | wc -l`
-    ).stdout
-  )
+  const commitCount = parseInt((await shell.$`git log ${latestCommitOnMaster}..${latestCommitOnPr} --pretty=oneline | wc -l`).stdout, 10)
 
   await shell.$`git branch -f ${prBranchBase} ${prBranchTop}~${commitCount}`
 
-  logger.info(
-    `Found ${chalk.green(commitCount)} ${
-      commitCount === 1 ? 'commit' : 'commit'
-    } for #${prNumber}:`
-  )
-  const logs = (
-    await shell.$`git log --oneline --color ${prBranch}_base..${prBranch}_top`
-  ).stdout
+  logger.info(`Found ${chalk.green(commitCount)} ${commitCount === 1 ? 'commit' : 'commit'} for #${prNumber}:`)
+  const logs = (await shell.$`git log --oneline --color ${prBranch}_base..${prBranch}_top`).stdout
   logger.info('')
   logger.info(logs.trim())
   logger.info('')
@@ -121,27 +104,22 @@ async function fetchPullRequest(pr: string) {
   await shell.$`git checkout --force -b ${prBranch} ${prBranchTop}`
   logger.info('Reset HEAD to pr base, all changed files show up as unstaged.')
   await shell.$`git reset ${prBranchBase}`
-  logger.info(
-    'You can start review now! Stage reviewed files to track your review progress.'
-  )
+  logger.info('You can start review now! Stage reviewed files to track your review progress.')
 }
 
 async function getRemotes() {
   const remoteOutput = (await shell.$`git remote -v`).stdout
-  const remotes = remoteOutput.split('\n').reduce((acc, next) => {
+  const initialValue: Record<string, string> = {}
+  return remoteOutput.split('\n').reduce((acc, next) => {
     const [remoteName, remoteUrl] = next.split('\t')
     if (remoteName) {
       acc[remoteName] = remoteUrl.split(' ')[0]
     }
     return acc
-  }, {} as Record<string, string>)
-
-  return remotes
+  }, initialValue)
 }
 
-async function getSelectedRemote(
-  remotes: Record<string, string>
-): Promise<string> {
+async function getSelectedRemote(remotes: Record<string, string>): Promise<string> {
   const keys = Object.keys(remotes)
   if (keys.length === 1) {
     return keys[0]
@@ -152,9 +130,7 @@ async function getSelectedRemote(
     name: 'selectedRemote',
     message: 'Select your remote repository.',
     choices: keys.map(name => {
-      const title = `${name.padEnd(Math.max(...keys.map(n => n.length)))}: ${
-        remotes[name]
-      }`
+      const title = `${name.padEnd(Math.max(...keys.map(n => n.length)))}: ${remotes[name]}`
       return { title, value: name }
     }),
   })

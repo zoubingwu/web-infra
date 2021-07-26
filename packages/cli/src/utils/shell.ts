@@ -1,11 +1,13 @@
 import path from 'path'
-import semver from 'semver'
 import fs from 'fs/promises'
 import { promisify } from 'util'
 import { exec } from 'child_process'
+
+import semver from 'semver'
 import shq from 'shq'
 import chalk from 'chalk'
 import detectIndent from 'detect-indent'
+
 import { createLogger, LogLevel } from './logger'
 import { DEFAULT_INDENT } from './constants'
 
@@ -74,15 +76,11 @@ async function setNpmScript(name: string, script: string) {
   try {
     await $`npm set-script ${name} ${script}`
   } catch {
-    //TODO npm set-script requires npm v7, do fallback here
+    // TODO npm set-script requires npm v7, do fallback here
   }
 }
 
-type HookTypes =
-  | 'pre-commit'
-  | 'prepare-commit-msg'
-  | 'commit-msg'
-  | 'post-commit'
+type HookTypes = 'pre-commit' | 'prepare-commit-msg' | 'commit-msg' | 'post-commit'
 
 async function addHuskyGitHook(name: HookTypes, script: string) {
   // npx husky add can't deal with script like `echo '$(pwd)' so we use our own implementation`
@@ -90,20 +88,14 @@ async function addHuskyGitHook(name: HookTypes, script: string) {
   if (await isFileExist(filename)) {
     await fs.appendFile(filename, script + '\n')
   } else {
-    await fs.writeFile(
-      filename,
-      '#!/bin/sh\n. "$(dirname "$0")/_/husky.sh"\n\n' + script + '\n'
-    )
+    await fs.writeFile(filename, '#!/bin/sh\n. "$(dirname "$0")/_/husky.sh"\n\n' + script + '\n')
     await fs.chmod(filename, '755')
   }
 }
 
 type ModuleInHooks = 'prettier' | 'eslint' | 'pretty-quick'
 
-async function hasHuskyGitHook(
-  type: HookTypes,
-  names: ModuleInHooks | ModuleInHooks[]
-): Promise<boolean> {
+async function hasHuskyGitHook(type: HookTypes, names: ModuleInHooks | ModuleInHooks[]): Promise<boolean> {
   try {
     const huskyPath = path.join(process.cwd(), '.husky', type)
     const { stdout } = await $`cat ${huskyPath.trim()}`
@@ -134,23 +126,30 @@ async function getInstalledModuleVersion(name: string): Promise<string | null> {
 }
 
 class ProcessOutput {
-  constructor(
-    public code: number,
-    public stdout: string,
-    public stderr: string,
-    private combined: string,
-    public stack?: string
-  ) {}
+  public code: number
+  public stdout: string
+  public stderr: string
+  public stack?: string
+  private combined: string
 
-  toString() {
+  // eslint-disable-next-line max-params
+  public constructor(code: number, stdout: string, stderr: string, combined: string, stack?: string) {
+    this.code = code
+    this.stdout = stdout
+    this.stderr = stderr
+    this.combined = combined
+    this.stack = stack
+  }
+
+  public toString() {
     return this.combined
   }
 
-  get exitCode() {
+  public get exitCode() {
     return this.code
   }
 
-  get message() {
+  public get message() {
     return this.stderr
   }
 }
@@ -168,18 +167,15 @@ function colorize(cmd: string) {
   })
 }
 
-type ShellRunner = {
+interface ShellRunner {
   (pieces: TemplateStringsArray, ...args: any[]): Promise<ProcessOutput>
   logLevel?: LogLevel
 }
 
-const $: ShellRunner = (
-  pieces: TemplateStringsArray,
-  ...args: any[]
-): Promise<ProcessOutput> => {
+const $: ShellRunner = (pieces: TemplateStringsArray, ...args: any[]): Promise<ProcessOutput> => {
   let stack = new Error()?.stack
-  let cmd = pieces[0],
-    i = 0
+  let cmd = pieces[0]
+  let i = 0
 
   while (i < args.length) {
     let s
@@ -199,9 +195,9 @@ const $: ShellRunner = (
     }
 
     let child = exec(cmd, options)
-    let stdout = '',
-      stderr = '',
-      combined = ''
+    let stdout = ''
+    let stderr = ''
+    let combined = ''
 
     child?.stdout?.on('data', data => {
       if ($.logLevel === 'debug') {
@@ -231,7 +227,9 @@ const $: ShellRunner = (
 
 const sleep = promisify(setTimeout)
 
-const setLogLevel = (level: LogLevel = 'info') => ($.logLevel = level)
+const setLogLevel = (level: LogLevel = 'info') => {
+  $.logLevel = level
+}
 
 export {
   $,

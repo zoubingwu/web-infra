@@ -9,31 +9,30 @@ export const writeFile = promisify(fs.writeFile)
 const CR = '\r'.charCodeAt(0)
 const LF = '\n'.charCodeAt(0)
 
-export async function getEolFromFile(path: string): Promise<string | void> {
+export async function getEolFromFile(path: string): Promise<string | undefined> {
   if (!(await exists(path))) {
-    return undefined
+    return
   }
 
   const buffer = await readFileBuffer(path)
 
-  for (let i = 0; i < buffer.length; ++i) {
-    if (buffer[i] === CR) {
+  for (const char of buffer) {
+    if (char === CR) {
       return '\r\n'
     }
-    if (buffer[i] === LF) {
+    if (char === LF) {
       return '\n'
     }
   }
-  return undefined
+
+  return
 }
 
-export async function writeFilePreservingEol(
-  path: string,
-  data: string
-): Promise<void> {
+export async function writeFilePreservingEol(path: string, data: string): Promise<void> {
+  let content = data
   const eol = (await getEolFromFile(path)) || os.EOL
   if (eol !== '\n') {
-    data = data.replace(/\n/g, eol)
+    content = data.replace(/\n/g, eol)
   }
-  await writeFile(path, data)
+  await writeFile(path, content)
 }

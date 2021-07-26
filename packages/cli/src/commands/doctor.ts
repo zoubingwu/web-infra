@@ -1,9 +1,10 @@
-import { prettierDoctor } from './prettier'
-import { gitDoctor } from './git'
-import { eslintDoctor } from './eslint'
 import { DoctorResult, resultLevelToLogSymbol } from '../utils/common'
 import { createLogger } from '../utils/logger'
 import * as shell from '../utils/shell'
+
+import { prettierDoctor } from './prettier'
+import { gitDoctor } from './git'
+import { eslintDoctor } from './eslint'
 
 export async function doctor() {
   const results = []

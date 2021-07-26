@@ -1,10 +1,15 @@
 import { cac } from 'cac'
 import chalk from 'chalk'
+
+import packgeJson from '../package.json'
+
 import { doctor } from './commands/doctor'
 import { fix } from './commands/fix'
 import { review, ReviewOptions } from './commands/review'
 import { createLogger, LogLevel } from './utils/logger'
 import * as shell from './utils/shell'
+
+const version = packgeJson.version
 
 const cli = cac('wi')
 
@@ -14,32 +19,21 @@ interface GlobalOptions {
   l?: LogLevel
 }
 
-cli.option(
-  '-l, --logLevel <level>',
-  `[string] silent | error | warn | info | debug`
-)
+cli.option('-l, --logLevel <level>', `[string] silent | error | warn | info | debug`)
 
 async function runDoctor(options: GlobalOptions) {
   shell.setLogLevel(options?.logLevel)
   try {
     await doctor()
   } catch (e) {
-    createLogger(options?.logLevel).error(
-      chalk.red(`error when running doctor, ${e.message}:\n${e.stack}`)
-    )
+    createLogger(options?.logLevel).error(chalk.red(`error when running doctor, ${e.message}:\n${e.stack}`))
     process.exit(1)
   }
 }
 
 cli.command('<commands> [options]').action(runDoctor)
 
-cli
-  .command(
-    'doctor',
-    'Run a full check based on a list of internal conventions.'
-  )
-  .alias('check')
-  .action(runDoctor)
+cli.command('doctor', 'Run a full check based on a list of internal conventions.').alias('check').action(runDoctor)
 
 cli
   .command('fix', 'Run a full check and do quick fix')
@@ -51,9 +45,7 @@ cli
     try {
       await fix()
     } catch (e) {
-      createLogger(options?.logLevel).error(
-        chalk.red(`error when running fix, ${e.message}:\n${e.stack}`)
-      )
+      createLogger(options?.logLevel).error(chalk.red(`error when running fix, ${e.message}:\n${e.stack}`))
       process.exit(1)
     }
   })
@@ -68,13 +60,11 @@ cli
     try {
       await review(pr, { clean: options.clean })
     } catch (e) {
-      createLogger(options?.logLevel).error(
-        chalk.red(`error when running github, ${e.message}:\n${e.stack}`)
-      )
+      createLogger(options?.logLevel).error(chalk.red(`error when running github, ${e.message}:\n${e.stack}`))
       process.exit(1)
     }
   })
 
 cli.help()
-cli.version(require('../package.json').version)
+cli.version(version)
 cli.parse()

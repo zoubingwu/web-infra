@@ -1,16 +1,17 @@
-import chalk from 'chalk'
 import readline from 'readline'
+
+import chalk from 'chalk'
 
 export type LogType = 'error' | 'warn' | 'info' | 'debug'
 export type LogLevel = LogType | 'silent'
 export interface Logger {
+  hasWarned: boolean
   debug(msg: string, options?: LogOptions): void
   info(msg: string, options?: LogOptions): void
   warn(msg: string, options?: LogOptions): void
   warnOnce(msg: string, options?: LogOptions): void
   error(msg: string, options?: LogOptions): void
   clearScreen(type: LogType): void
-  hasWarned: boolean
 }
 
 export interface LogOptions {
@@ -39,29 +40,18 @@ export interface LoggerOptions {
   allowClearScreen?: boolean
 }
 
-export function createLogger(
-  level: LogLevel = 'info',
-  options: LoggerOptions = {}
-): Logger {
+export function createLogger(level: LogLevel = 'info', options: LoggerOptions = {}): Logger {
   const { prefix = '[web-infra]', allowClearScreen = true } = options
 
   const thresh = LogLevels[level]
-  const clear =
-    allowClearScreen && process.stdout.isTTY && !process.env.CI
-      ? clearScreen
-      : () => {}
+  const clear = allowClearScreen && process.stdout.isTTY && !process.env.CI ? clearScreen : () => {}
 
   function output(type: LogType, msg: string, options: LogOptions = {}) {
     if (thresh >= LogLevels[type]) {
       const method = type === 'info' ? 'log' : type
       const format = () => {
         if (options.timestamp) {
-          const tag =
-            type === 'info'
-              ? chalk.cyan.bold(prefix)
-              : type === 'warn'
-              ? chalk.yellow.bold(prefix)
-              : chalk.red.bold(prefix)
+          const tag = type === 'info' ? chalk.cyan.bold(prefix) : type === 'warn' ? chalk.yellow.bold(prefix) : chalk.red.bold(prefix)
           return `${chalk.dim(new Date().toLocaleTimeString())} ${tag} ${msg}`
         } else {
           return msg

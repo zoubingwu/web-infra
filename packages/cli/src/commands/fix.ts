@@ -1,8 +1,9 @@
+import * as shell from '../utils/shell'
+import { createLogger } from '../utils/logger'
+
 import { prettierDoctor } from './prettier'
 import { gitDoctor } from './git'
 import { eslintDoctor } from './eslint'
-import * as shell from '../utils/shell'
-import { createLogger } from '../utils/logger'
 
 export async function fix() {
   const logger = createLogger(shell.$.logLevel)
