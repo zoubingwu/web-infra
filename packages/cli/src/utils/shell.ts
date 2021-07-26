@@ -11,6 +11,9 @@ import detectIndent from 'detect-indent'
 import { createLogger, LogLevel } from './logger'
 import { DEFAULT_INDENT } from './constants'
 
+/**
+ * Get the whole project root, equals git root
+ */
 async function getProjectRoot(): Promise<string> {
   const { stdout: root } = await $`git rev-parse --show-toplevel`
   return root.trim()
@@ -36,11 +39,6 @@ async function getPacakgeJson(dir: string): Promise<PackageJSON> {
   }
 }
 
-async function getProjectRootPackgeJson() {
-  const rootDir = await getProjectRoot()
-  return await getPacakgeJson(rootDir)
-}
-
 async function getCurrentDirectoryPackageJson() {
   return await getPacakgeJson(process.cwd())
 }
@@ -56,7 +54,7 @@ async function isNpmModuleInstalled(moduleName: string): Promise<boolean> {
 
 async function isFileExist(fileName: string) {
   try {
-    await $`test -f ${fileName}`
+    await fs.access(fileName)
     return true
   } catch {
     return false
@@ -126,11 +124,11 @@ async function getInstalledModuleVersion(name: string): Promise<string | null> {
 }
 
 class ProcessOutput {
-  public code: number
-  public stdout: string
-  public stderr: string
-  public stack?: string
-  private combined: string
+  public readonly code: number
+  public readonly stdout: string
+  public readonly stderr: string
+  public readonly stack?: string
+  private readonly combined: string
 
   // eslint-disable-next-line max-params
   public constructor(code: number, stdout: string, stderr: string, combined: string, stack?: string) {
@@ -234,7 +232,6 @@ const setLogLevel = (level: LogLevel = 'info') => {
 export {
   $,
   getProjectRoot,
-  getProjectRootPackgeJson,
   getCurrentDirectoryPackageJson,
   isNpmModuleInstalled,
   isFileExist,
