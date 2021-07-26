@@ -1,17 +1,17 @@
 import { configureStore, Middleware, isRejectedWithValue } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { createLogger } from 'redux-logger'
+
 import { api } from '../services/api'
+
 import { globalSlice } from './global'
 import { authSlice } from './auth'
 
 const rtkQueryErrorLogger: Middleware = () => next => action => {
   if (isRejectedWithValue(action)) {
-    let message = action.error.message
-    if (action.payload?.data?.errors?.message) {
-      message = `${action.payload?.data?.errors?.message}`
-    }
     console.error('RTKQ error caught: ', action)
+
+    // insert your own error handler here
   }
 
   return next(action)

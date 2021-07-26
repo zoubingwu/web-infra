@@ -5,7 +5,7 @@ interface GlobalState {
 }
 
 const initialState: GlobalState = {
-  darkMode: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches,
+  darkMode: window?.matchMedia('(prefers-color-scheme: dark)').matches,
 }
 
 export const globalSlice = createSlice({

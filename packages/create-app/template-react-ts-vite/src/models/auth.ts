@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+
 import { getLocalAuthInfo } from '../utils/storage'
 
 interface AuthState {

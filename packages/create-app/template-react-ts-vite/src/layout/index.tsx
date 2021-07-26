@@ -1,6 +1,7 @@
-import { lazy, Suspense } from 'react'
+import React, { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Switch, Route, Redirect, RouteProps } from 'react-router-dom'
 import { Spin } from 'antd'
+
 import { useAppSelector } from '../models'
 
 const HomePage = lazy(() => import('../pages/HomePage'))

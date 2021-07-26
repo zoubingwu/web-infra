@@ -1,4 +1,5 @@
 import { Provider } from 'react-redux'
+
 import { store } from './models'
 import Layout from './layout'
 
