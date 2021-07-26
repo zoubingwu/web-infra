@@ -1,16 +1,16 @@
-import { cosmiconfig } from 'cosmiconfig'
 import chalk from 'chalk'
+import { cosmiconfig } from 'cosmiconfig'
 
 import { json5, toml } from '../utils/loader'
 import { createLogger } from '../utils/logger'
 import * as shell from '../utils/shell'
 import * as fs from '../utils/fs'
-import { createDoctorResult, Doctor } from '../utils/common'
+import { assertUnreachable, createDoctorResult, Doctor } from '../utils/common'
 import prettierConfig from '../../../prettier-config/package.json'
 
 enum PrettierStatus {
   Good,
-  PrettierNotInstalled,
+  NotInstalled,
   PrettierWronglyConfigured,
   PrettierConfigNotFound,
   NotNpmProject,
@@ -47,7 +47,7 @@ class PrettierDoctor extends Doctor {
     switch (status) {
       case PrettierStatus.Good:
         return createDoctorResult('success', 'Prettier is installed and properly configured.')
-      case PrettierStatus.PrettierNotInstalled:
+      case PrettierStatus.NotInstalled:
         return createDoctorResult('error', 'Prettier is not installed')
       case PrettierStatus.NotNpmProject:
         return createDoctorResult('error', 'Could not find package.json in current directory.')
@@ -66,25 +66,26 @@ class PrettierDoctor extends Doctor {
       case PrettierStatus.NotNpmProject:
         logger.info(chalk.yellow(`Skipping...Could not find package.json in current directory.`))
         return
-      case PrettierStatus.PrettierNotInstalled: {
-        logger.info(`Installing prettier, pretty-quick and ${prettierConfig.name}...`)
-        await shell.$`yarn add prettier pretty-quick ${prettierConfig.name} -D`
+      case PrettierStatus.NotInstalled: {
+        logger.info(`Installing prettier, pretty-quick...`)
+        await shell.$`yarn add prettier pretty-quick -D`
+      }
+      // eslint-disable-next-line no-fallthrough
+      case PrettierStatus.PrettierConfigNotFound: {
+        logger.info(`Setting up prettier configuration...`)
+        await shell.$`yarn add ${prettierConfig.name} -D`
         const { path, json, indent } = await shell.getCurrentDirectoryPackageJson()
         json.prettier = prettierConfig.name
         logger.info(`Setting up prettier configuration...`)
         await fs.writeFilePreservingEol(path, JSON.stringify(json, null, indent) + '\n')
-        break
+        logger.info(`Prettier fixed!`)
+        return
       }
       case PrettierStatus.PrettierWronglyConfigured:
-        break
-      case PrettierStatus.PrettierConfigNotFound:
-        logger.info(`Setting up prettier configuration...`)
-        await shell.$`yarn add ${prettierConfig.name} -D`
-        break
-      default:
-        break
+        return
     }
-    logger.info(`Prettier fixed!`)
+
+    return assertUnreachable(status)
   }
 
   protected async getStatus() {
@@ -95,14 +96,14 @@ class PrettierDoctor extends Doctor {
     }
 
     if (!(await shell.isNpmModuleInstalled('prettier'))) {
-      return PrettierStatus.PrettierNotInstalled
+      return PrettierStatus.NotInstalled
     }
 
     try {
       const result = await getPrettierConfig()
 
       if (result) {
-        logger.info(`Found Prettier configuration at ${result.filepath}`)
+        logger.info(`Found prettier configuration at ${result.filepath}`)
         delete result.config.$schema
 
         // TODO compare config and find inconsistency
