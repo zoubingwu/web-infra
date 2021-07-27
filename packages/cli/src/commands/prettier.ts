@@ -40,6 +40,12 @@ async function getPrettierConfig() {
   return await explorer.search()
 }
 
+const defaultPrettierConfig = `module.exports = {
+  ...require('@ti-fe/prettier-config'),
+  // extend your prettier configuration here
+}
+`
+
 class PrettierDoctor extends Doctor {
   public name = 'Prettier'
 
@@ -67,17 +73,14 @@ class PrettierDoctor extends Doctor {
         logger.info(chalk.yellow(`Skipping...Could not find package.json in current directory.`))
         return
       case PrettierStatus.NotInstalled: {
-        logger.info(`Installing prettier, pretty-quick...`)
-        await shell.$`yarn add prettier pretty-quick -D`
+        logger.info(`Installing prettier...`)
+        await shell.$`yarn add prettier -D`
       }
       // eslint-disable-next-line no-fallthrough
       case PrettierStatus.PrettierConfigNotFound: {
         logger.info(`Setting up prettier configuration...`)
         await shell.$`yarn add ${prettierConfig.name} -D`
-        const { path, json, indent } = await shell.getCurrentDirectoryPackageJson()
-        json.prettier = prettierConfig.name
-        logger.info(`Setting up prettier configuration...`)
-        await fs.writeFilePreservingEol(path, JSON.stringify(json, null, indent) + '\n')
+        await fs.writeFilePreservingEol(`${process.cwd()}/.prettierrc.js`, defaultPrettierConfig)
         logger.info(`Prettier fixed!`)
         return
       }

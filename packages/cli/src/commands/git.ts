@@ -4,6 +4,7 @@ import chalk from 'chalk'
 import { createLogger } from '../utils/logger'
 import * as shell from '../utils/shell'
 import { createDoctorResult, Doctor } from '../utils/common'
+import { writeFilePreservingEol } from '../utils/fs'
 
 enum GitStatus {
   Good,
@@ -12,6 +13,17 @@ enum GitStatus {
   LegacyHuskyInstalled,
   PrettierHookNotFound,
 }
+
+const defaultLintStagedConfig = `module.exports = {
+  '*.{js,ts,jsx,tsx}': [
+    'eslint --fix',
+    "prettier --write --ignore-unknown"
+  ],
+  "*.+(json|css|md)": [
+    "prettier --write"
+  ]
+}
+`
 
 class GitDoctor extends Doctor {
   public name = 'Git'
@@ -34,38 +46,46 @@ class GitDoctor extends Doctor {
   public async getPreCommitScript() {
     const root = await shell.getProjectRoot()
     const cwd = process.cwd()
-    const ispackageJsonSameLevelWithGit = root === cwd
+    const isPackageJsonSameLevelWithGit = root === cwd
 
-    if (ispackageJsonSameLevelWithGit) {
-      return `npx pretty-quick --staged`
+    if (isPackageJsonSameLevelWithGit) {
+      return `npx lint-staged --config ./.lintstagedrc.js`
     }
-
+    const packageJsonPath = `$(pwd)${cwd.replace(root, '')}`
     return (
-      `formatter=${'$(pwd)' + cwd.replace(root, '')}/node_modules/.bin/pretty-quick \n` +
-      `if test -f "$formatter"; then \n` +
-      `  $formatter --pattern "**/*.*(ts|tsx|js|jsx|html|css)" --staged \n` +
+      `export PATH="$PATH:${packageJsonPath}/node_modules/.bin"\n` +
+      `linter=${packageJsonPath}/node_modules/.bin/lint-staged\n` +
+      `if test -f "$linter"; then\n` +
+      `  $linter --config ${packageJsonPath}/.lintstagedrc.js\n` +
       `fi`
     )
   }
 
   public async installHusky() {
     const logger = createLogger(shell.$.logLevel)
-    logger.info('Installing husky...')
-    await shell.$`yarn add husky -D`
+    logger.info('Installing husky, lint-staged...')
+    await shell.$`yarn add husky is-ci lint-staged -D`
     const root = await shell.getProjectRoot()
     const cwd = process.cwd()
-    const ispackageJsonSameLevelWithGit = root === cwd
-    if (ispackageJsonSameLevelWithGit) {
-      await shell.setNpmScript('prepare', 'husky install')
+    const isPackageJsonSameLevelWithGit = root === cwd
+    if (isPackageJsonSameLevelWithGit) {
+      await shell.setNpmScript('prepare', 'is-ci || husky install')
     } else {
       logger.info(`Found git root is not the same level with package.json`)
-      await shell.setNpmScript('prepare', `cd \`git rev-parse --show-toplevel\` && husky install ${cwd.replace(root + '/', '')}/.husky`)
+      await shell.setNpmScript('prepare', `is-ci || cd \`git rev-parse --show-toplevel\` && husky install ${cwd.replace(root + '/', '')}/.husky`)
     }
     await shell.$`npm run prepare`
   }
 
+  public async setupLintStaged() {
+    const logger = createLogger(shell.$.logLevel)
+    logger.info('Setting up lint-staged...')
+    await writeFilePreservingEol(`${process.cwd()}/.lintstagedrc.js`, defaultLintStagedConfig)
+  }
+
   public async addPreCommitPrettierHook() {
     const logger = createLogger(shell.$.logLevel)
+    await this.setupLintStaged()
     logger.info('Adding prettier hooks with husky...')
     const script = await this.getPreCommitScript()
     await shell.addHuskyGitHook('pre-commit', script)
