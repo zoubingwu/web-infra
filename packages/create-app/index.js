@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const execSync = require('child_process').execSync
 const argv = require('minimist')(process.argv.slice(2))
-const { cyan, blue, yellow, green } = require('chalk')
+const { cyan, red, yellow, green } = require('chalk')
 const prompts = require('prompts')
 
 const cwd = process.cwd()
@@ -131,7 +131,7 @@ function tryGitInit(cwd) {
 
         {
           type: (_, { overwrite } = {}) => {
-            if (overwrite == false) {
+            if (overwrite === false) {
               throw new Error(red('✖') + ' Operation cancelled')
             }
             return null
@@ -184,7 +184,7 @@ function tryGitInit(cwd) {
         },
       }
     )
-  } catch (e) {
+  } catch (cancelled) {
     console.log(cancelled.message)
     return
   }
@@ -234,7 +234,7 @@ function tryGitInit(cwd) {
   console.log(`  yarn`)
   console.log(`  yarn start`)
   console.log()
-  console.log(`Also you could use our cli for a quick linter/formatter setup :)\n`)
+  console.log(`Also for a quick linter/formatter setup :)\n`)
   console.log(`  npx wi fix`)
   console.log()
 })()
