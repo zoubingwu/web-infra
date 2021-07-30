@@ -3,6 +3,7 @@ import chalk from 'chalk'
 
 import packgeJson from '../package.json'
 
+import { codegen, CodegenOptions } from './commands/codegen'
 import { doctor } from './commands/doctor'
 import { fix } from './commands/fix'
 import { review, ReviewOptions } from './commands/review'
@@ -60,7 +61,25 @@ cli
     try {
       await review(pr, { clean: options.clean })
     } catch (e) {
-      createLogger(options?.logLevel).error(chalk.red(`error when running github, ${e.message}:\n${e.stack}`))
+      createLogger(options?.logLevel).error(chalk.red(`error when running review, ${e.message}:\n${e.stack}`))
+      process.exit(1)
+    }
+  })
+
+cli
+  .command('generate', 'Generate code from an OpenAPI schema.')
+  .option('-o, --output <path>', 'Specify output dir.')
+  .option('-c, --schema <path>', 'Specify OpenAPI schema file path.')
+  .option('-m, --model <models group>', 'Group  model definitions to output it in different files.')
+  .example('wi generate -c ./swagger.json')
+  .example('wi generate -c ./swagger.json --model user,pet,order -o src/models')
+  .action(async (options: GlobalOptions & CodegenOptions) => {
+    shell.setLogLevel(options?.logLevel)
+    const { schema, model, output } = options
+    try {
+      await codegen({ schema, model, output })
+    } catch (e) {
+      createLogger(options?.logLevel).error(chalk.red(`error when running generate, ${e.message}:\n${e.stack}`))
       process.exit(1)
     }
   })
