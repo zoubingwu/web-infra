@@ -7,6 +7,7 @@ module.exports = {
   // override rules here
   rules: {
     '@typescript-eslint/method-signature-style': 'off',
+    '@typescript-eslint/no-invalid-void-type': 'off',
 
     /**
      * @reason a more strict import order for better maintainability
@@ -14,7 +15,15 @@ module.exports = {
     'import/order': [
       'error',
       {
-        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object'],
+        groups: [
+          'builtin',
+          'external',
+          'internal',
+          'parent',
+          'sibling',
+          'index',
+          'object',
+        ],
         'newlines-between': 'always',
       },
     ],
