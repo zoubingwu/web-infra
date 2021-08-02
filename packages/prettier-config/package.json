@@ -3,7 +3,7 @@
   "description": "Prettier config for PingCAP FE team",
   "license": "MIT",
   "main": "index.json",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ti-FE/web-infra.git",
