@@ -2,7 +2,7 @@
   "name": "@ti-fe/eslint-config",
   "description": "Eslint config for PingCAP FE team",
   "main": "index.js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "dependencies": {
     "eslint-config-alloy": ">=4",
