@@ -20,21 +20,32 @@ interface GlobalOptions {
   l?: LogLevel
 }
 
-cli.option('-l, --logLevel <level>', `[string] silent | error | warn | info | debug`)
+cli.option(
+  '-l, --logLevel <level>',
+  `[string] silent | error | warn | info | debug`
+)
 
 async function runDoctor(options: GlobalOptions) {
   shell.setLogLevel(options?.logLevel)
   try {
     await doctor()
   } catch (e) {
-    createLogger(options?.logLevel).error(chalk.red(`error when running doctor, ${e.message}:\n${e.stack}`))
+    createLogger(options?.logLevel).error(
+      chalk.red(`error when running doctor, ${e.message}:\n${e.stack}`)
+    )
     process.exit(1)
   }
 }
 
 cli.command('<commands> [options]').action(runDoctor)
 
-cli.command('doctor', 'Run a full check based on a list of internal conventions.').alias('check').action(runDoctor)
+cli
+  .command(
+    'doctor',
+    'Run a full check based on a list of internal conventions.'
+  )
+  .alias('check')
+  .action(runDoctor)
 
 cli
   .command('fix', 'Run a full check and do quick fix')
@@ -46,7 +57,9 @@ cli
     try {
       await fix()
     } catch (e) {
-      createLogger(options?.logLevel).error(chalk.red(`error when running fix, ${e.message}:\n${e.stack}`))
+      createLogger(options?.logLevel).error(
+        chalk.red(`error when running fix, ${e.message}:\n${e.stack}`)
+      )
       process.exit(1)
     }
   })
@@ -61,7 +74,9 @@ cli
     try {
       await review(pr, { clean: options.clean })
     } catch (e) {
-      createLogger(options?.logLevel).error(chalk.red(`error when running review, ${e.message}:\n${e.stack}`))
+      createLogger(options?.logLevel).error(
+        chalk.red(`error when running review, ${e.message}:\n${e.stack}`)
+      )
       process.exit(1)
     }
   })
@@ -70,16 +85,21 @@ cli
   .command('generate', 'Generate code from an OpenAPI schema.')
   .option('-o, --output <path>', 'Specify output dir.')
   .option('-c, --schema <path>', 'Specify OpenAPI schema file path.')
-  .option('-m, --model <models group>', 'Group  model definitions to output it in different files.')
+  .option(
+    '-g, --group <models>',
+    'Group model to output it in different files.'
+  )
   .example('wi generate -c ./swagger.json')
-  .example('wi generate -c ./swagger.json --model user,pet,order -o src/models')
+  .example('wi generate -c ./swagger.json --group user,pet,order -o src/models')
   .action(async (options: GlobalOptions & CodegenOptions) => {
     shell.setLogLevel(options?.logLevel)
-    const { schema, model, output } = options
+    const { schema, group, output } = options
     try {
-      await codegen({ schema, model, output })
+      await codegen({ schema, group, output })
     } catch (e) {
-      createLogger(options?.logLevel).error(chalk.red(`error when running generate, ${e.message}:\n${e.stack}`))
+      createLogger(options?.logLevel).error(
+        chalk.red(`error when running generate, ${e.message}:\n${e.stack}`)
+      )
       process.exit(1)
     }
   })
