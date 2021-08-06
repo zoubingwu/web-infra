@@ -30,7 +30,14 @@ const defaultEslintConfig = `module.exports = {
 
 async function getEslintConfig() {
   const explorer = cosmiconfig('eslint', {
-    searchPlaces: ['package.json', '.eslintrc.js', '.eslintrc.cjs', '.eslintrc.yaml', '.eslintrc.yml', '.eslintrc.json'],
+    searchPlaces: [
+      'package.json',
+      '.eslintrc.js',
+      '.eslintrc.cjs',
+      '.eslintrc.yaml',
+      '.eslintrc.yml',
+      '.eslintrc.json',
+    ],
     packageProp: ['eslintConfig'],
   })
 
@@ -43,9 +50,15 @@ class EslintDoctor extends Doctor {
   public getDoctorResult(status: EslintStatus) {
     switch (status) {
       case EslintStatus.Good:
-        return createDoctorResult('success', 'Eslint is properly installed and configured.')
+        return createDoctorResult(
+          'success',
+          'Eslint is properly installed and configured.'
+        )
       case EslintStatus.NotNpmProject:
-        return createDoctorResult('error', 'Could not find package.json in current directory.')
+        return createDoctorResult(
+          'error',
+          'Could not find package.json in current directory.'
+        )
       case EslintStatus.NotInstalled:
         return createDoctorResult('error', 'Eslint is not installed.')
       case EslintStatus.ConfigNotFound:
@@ -64,7 +77,11 @@ class EslintDoctor extends Doctor {
       case EslintStatus.Good:
         return
       case EslintStatus.NotNpmProject:
-        logger.info(chalk.yellow(`Skipping...Could not find package.json in current directory.`))
+        logger.info(
+          chalk.yellow(
+            `Skipping...Could not find package.json in current directory.`
+          )
+        )
         return
       case EslintStatus.NotInstalled: {
         logger.info(`Installing eslint related dependencies...`)
@@ -73,12 +90,19 @@ class EslintDoctor extends Doctor {
       // eslint-disable-next-line no-fallthrough
       case EslintStatus.ConfigNotFound: {
         logger.info(`Setting up eslint configuration...`)
-        await fs.writeFilePreservingEol(`${process.cwd()}/.eslintrc.js`, defaultEslintConfig)
+        await fs.writeFilePreservingEol(
+          `${process.cwd()}/.eslintrc.js`,
+          defaultEslintConfig
+        )
         logger.info(`Eslint fixed!`)
         return
       }
       case EslintStatus.ConfigNotConsistent:
-        logger.info(chalk.yellow(`Skipping...Current config is not consistent with @ti-fe/eslint-config, try install it manually.`))
+        logger.info(
+          chalk.yellow(
+            `Skipping...Current config is not consistent with @ti-fe/eslint-config, try install it manually.`
+          )
+        )
         return
     }
 
@@ -92,7 +116,7 @@ class EslintDoctor extends Doctor {
   protected async getStatus() {
     const logger = createLogger(shell.$.logLevel)
 
-    if (!(await shell.isFileExist('package.json'))) {
+    if (!shell.isFileExist('package.json')) {
       return EslintStatus.NotNpmProject
     }
 

@@ -52,15 +52,27 @@ class PrettierDoctor extends Doctor {
   public getDoctorResult(status: PrettierStatus) {
     switch (status) {
       case PrettierStatus.Good:
-        return createDoctorResult('success', 'Prettier is installed and properly configured.')
+        return createDoctorResult(
+          'success',
+          'Prettier is installed and properly configured.'
+        )
       case PrettierStatus.NotInstalled:
         return createDoctorResult('error', 'Prettier is not installed')
       case PrettierStatus.NotNpmProject:
-        return createDoctorResult('error', 'Could not find package.json in current directory.')
+        return createDoctorResult(
+          'error',
+          'Could not find package.json in current directory.'
+        )
       case PrettierStatus.PrettierWronglyConfigured:
-        return createDoctorResult('error', 'Prettier is installed but not properly configured.')
+        return createDoctorResult(
+          'error',
+          'Prettier is installed but not properly configured.'
+        )
       case PrettierStatus.PrettierConfigNotFound:
-        return createDoctorResult('error', 'Prettier is installed but could not find configs.')
+        return createDoctorResult(
+          'error',
+          'Prettier is installed but could not find configs.'
+        )
     }
   }
 
@@ -70,7 +82,11 @@ class PrettierDoctor extends Doctor {
       case PrettierStatus.Good:
         return
       case PrettierStatus.NotNpmProject:
-        logger.info(chalk.yellow(`Skipping...Could not find package.json in current directory.`))
+        logger.info(
+          chalk.yellow(
+            `Skipping...Could not find package.json in current directory.`
+          )
+        )
         return
       case PrettierStatus.NotInstalled: {
         logger.info(`Installing prettier...`)
@@ -80,7 +96,10 @@ class PrettierDoctor extends Doctor {
       case PrettierStatus.PrettierConfigNotFound: {
         logger.info(`Setting up prettier configuration...`)
         await shell.$`yarn add ${prettierConfig.name} -D`
-        await fs.writeFilePreservingEol(`${process.cwd()}/.prettierrc.js`, defaultPrettierConfig)
+        await fs.writeFilePreservingEol(
+          `${process.cwd()}/.prettierrc.js`,
+          defaultPrettierConfig
+        )
         logger.info(`Prettier fixed!`)
         return
       }
@@ -94,7 +113,7 @@ class PrettierDoctor extends Doctor {
   protected async getStatus() {
     const logger = createLogger(shell.$.logLevel)
 
-    if (!(await shell.isFileExist('package.json'))) {
+    if (!shell.isFileExist('package.json')) {
       return PrettierStatus.NotNpmProject
     }
 

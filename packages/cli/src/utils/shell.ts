@@ -1,5 +1,6 @@
 import path from 'path'
-import fs from 'fs/promises'
+import fs from 'fs'
+import fsp from 'fs/promises'
 import { promisify } from 'util'
 import { exec } from 'child_process'
 
@@ -27,7 +28,7 @@ interface PackageJSON {
 
 async function getPacakgeJson(dir: string): Promise<PackageJSON> {
   try {
-    const file = await fs.readFile(path.resolve(dir, 'package.json'), 'utf8')
+    const file = await fsp.readFile(path.resolve(dir, 'package.json'), 'utf8')
     const indent = detectIndent(file).indent || DEFAULT_INDENT
     return {
       path: `${dir}/package.json`,
@@ -52,13 +53,8 @@ async function isNpmModuleInstalled(moduleName: string): Promise<boolean> {
   }
 }
 
-async function isFileExist(fileName: string) {
-  try {
-    await fs.access(fileName)
-    return true
-  } catch {
-    return false
-  }
+function isFileExist(fileName: string) {
+  return fs.existsSync(fileName)
 }
 
 async function isInsideGitRepo() {
@@ -78,22 +74,32 @@ async function setNpmScript(name: string, script: string) {
   }
 }
 
-type HookTypes = 'pre-commit' | 'prepare-commit-msg' | 'commit-msg' | 'post-commit'
+type HookTypes =
+  | 'pre-commit'
+  | 'prepare-commit-msg'
+  | 'commit-msg'
+  | 'post-commit'
 
 async function addHuskyGitHook(name: HookTypes, script: string) {
   // npx husky add can't deal with script like `echo '$(pwd)' so we use our own implementation`
   const filename = `.husky/${name}`
-  if (await isFileExist(filename)) {
-    await fs.appendFile(filename, script + '\n')
+  if (isFileExist(filename)) {
+    await fsp.appendFile(filename, script + '\n')
   } else {
-    await fs.writeFile(filename, '#!/bin/sh\n. "$(dirname "$0")/_/husky.sh"\n\n' + script + '\n')
-    await fs.chmod(filename, '755')
+    await fsp.writeFile(
+      filename,
+      '#!/bin/sh\n. "$(dirname "$0")/_/husky.sh"\n\n' + script + '\n'
+    )
+    await fsp.chmod(filename, '755')
   }
 }
 
-type ModuleInHooks = 'prettier' | 'eslint' | 'pretty-quick'
+type ModuleInHooks = 'prettier' | 'eslint' | 'pretty-quick' | 'lint-staged'
 
-async function hasHuskyGitHook(type: HookTypes, names: ModuleInHooks | ModuleInHooks[]): Promise<boolean> {
+async function hasHuskyGitHook(
+  type: HookTypes,
+  names: ModuleInHooks | ModuleInHooks[]
+): Promise<boolean> {
   try {
     const huskyPath = path.join(process.cwd(), '.husky', type)
     const { stdout } = await $`cat ${huskyPath.trim()}`
@@ -131,7 +137,13 @@ class ProcessOutput {
   private readonly combined: string
 
   // eslint-disable-next-line max-params
-  public constructor(code: number, stdout: string, stderr: string, combined: string, stack?: string) {
+  public constructor(
+    code: number,
+    stdout: string,
+    stderr: string,
+    combined: string,
+    stack?: string
+  ) {
     this.code = code
     this.stdout = stdout
     this.stderr = stderr
@@ -170,7 +182,10 @@ interface ShellRunner {
   logLevel?: LogLevel
 }
 
-const $: ShellRunner = (pieces: TemplateStringsArray, ...args: any[]): Promise<ProcessOutput> => {
+const $: ShellRunner = (
+  pieces: TemplateStringsArray,
+  ...args: any[]
+): Promise<ProcessOutput> => {
   let stack = new Error()?.stack
   let cmd = pieces[0]
   let i = 0
