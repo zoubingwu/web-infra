@@ -31,15 +31,27 @@ class GitDoctor extends Doctor {
   public getDoctorResult(status: GitStatus) {
     switch (status) {
       case GitStatus.Good:
-        return createDoctorResult('success', 'Git hooks are properly installed and configured.')
+        return createDoctorResult(
+          'success',
+          'Git hooks are properly installed and configured.'
+        )
       case GitStatus.NotGitRepo:
-        return createDoctorResult('error', 'Current directory is not a Git repo.')
+        return createDoctorResult(
+          'error',
+          'Current directory is not a Git repo.'
+        )
       case GitStatus.HuskyNotInstalled:
         return createDoctorResult('error', 'Could not find husky for git hook.')
       case GitStatus.LegacyHuskyInstalled:
-        return createDoctorResult('warn', 'Found legacy version of husky installed.')
+        return createDoctorResult(
+          'warn',
+          'Found legacy version of husky installed.'
+        )
       case GitStatus.PrettierHookNotFound:
-        return createDoctorResult('warn', 'Could not find pre-commit hook to run prettier.')
+        return createDoctorResult(
+          'warn',
+          'Could not find pre-commit hook to run prettier.'
+        )
     }
   }
 
@@ -72,7 +84,13 @@ class GitDoctor extends Doctor {
       await shell.setNpmScript('prepare', 'is-ci || husky install')
     } else {
       logger.info(`Found git root is not the same level with package.json`)
-      await shell.setNpmScript('prepare', `is-ci || cd \`git rev-parse --show-toplevel\` && husky install ${cwd.replace(root + '/', '')}/.husky`)
+      await shell.setNpmScript(
+        'prepare',
+        `is-ci || cd \`git rev-parse --show-toplevel\` && husky install ${cwd.replace(
+          root + '/',
+          ''
+        )}/.husky`
+      )
     }
     await shell.$`npm run prepare`
   }
@@ -80,7 +98,10 @@ class GitDoctor extends Doctor {
   public async setupLintStaged() {
     const logger = createLogger(shell.$.logLevel)
     logger.info('Setting up lint-staged...')
-    await writeFilePreservingEol(`${process.cwd()}/.lintstagedrc.js`, defaultLintStagedConfig)
+    await writeFilePreservingEol(
+      `${process.cwd()}/.lintstagedrc.js`,
+      defaultLintStagedConfig
+    )
   }
 
   public async addPreCommitPrettierHook() {
@@ -98,7 +119,11 @@ class GitDoctor extends Doctor {
       case GitStatus.Good:
         return
       case GitStatus.NotGitRepo:
-        logger.info(chalk.yellow(`Skipping...You need to initialize current directory as git repo first.`))
+        logger.info(
+          chalk.yellow(
+            `Skipping...You need to initialize current directory as git repo first.`
+          )
+        )
         return
       case GitStatus.HuskyNotInstalled:
         await this.installHusky()
@@ -107,7 +132,9 @@ class GitDoctor extends Doctor {
       case GitStatus.LegacyHuskyInstalled:
         logger.info(
           chalk.yellow(
-            `Skipping...to migrate to latest version of husky, see ${chalk.underline('https://typicode.github.io/husky/#/?id=migrate-from-v4-to-v6')}`
+            `Skipping...to migrate to latest version of husky, see ${chalk.underline(
+              'https://typicode.github.io/husky/#/?id=migrate-from-v4-to-v6'
+            )}`
           )
         )
         return
@@ -134,7 +161,13 @@ class GitDoctor extends Doctor {
       return GitStatus.LegacyHuskyInstalled
     }
 
-    if (!(await shell.hasHuskyGitHook('pre-commit', ['prettier', 'pretty-quick']))) {
+    if (
+      !(await shell.hasHuskyGitHook('pre-commit', [
+        'prettier',
+        'pretty-quick',
+        'lint-staged',
+      ]))
+    ) {
       return GitStatus.PrettierHookNotFound
     }
 
