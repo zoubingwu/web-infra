@@ -5,6 +5,7 @@ module.exports = {
   },
   globals: {
     // Your global variables
+    JSX: true,
   },
   rules: {
     // Your custom rules.
