@@ -27,7 +27,7 @@ DOCS_ENTRY.forEach(doc => {
     route: toRoute(title.toLowerCase()),
   }
 
-  const children = []
+  const { children } = item
   const file = new VFile(content)
   const extractTitle = () => tree =>
     visit(tree, 'heading', node => {
