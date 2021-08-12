@@ -3,4 +3,4 @@ node_modules/
 dist/
 *.log
 /.idea/
-/packages/site/src/generated/
+/packages/site/docs.generated.json
