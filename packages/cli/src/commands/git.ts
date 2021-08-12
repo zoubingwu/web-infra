@@ -15,7 +15,7 @@ enum GitStatus {
 }
 
 const defaultLintStagedConfig = `module.exports = {
-  '*.{js,ts,jsx,tsx}': [
+  '*.{js,mjs,ts,jsx,tsx}': [
     'eslint --fix',
     "prettier --write --ignore-unknown"
   ],
