@@ -10,18 +10,18 @@ import mdx from '@mdx-js/mdx' // FIXME: mdx-2.0.0-next.9 is missing some types, 
 
 const filename = fileURLToPath(import.meta.url)
 const SITE_ROOT = path.resolve(path.dirname(filename), '..')
-const DOCS_DIR = path.resolve(SITE_ROOT, './docs')
 const SRC_DIR = path.resolve(SITE_ROOT, './src')
+const DOCS_DIR = path.resolve(SRC_DIR, './docs')
 const DOCS_ENTRY = fs.readdirSync(DOCS_DIR)
 const docsData = {
   nav: [],
 }
+
 DOCS_ENTRY.forEach(doc => {
-  const { content, data } = matter.read(path.resolve(DOCS_DIR, doc))
-  const title = data.title || path.basename(doc, '.mdx')
+  const { content } = matter.read(path.resolve(DOCS_DIR, doc))
+  const title = path.basename(doc, '.mdx')
   const item = {
-    title,
-    index: data.index,
+    title: title.toUpperCase(),
     children: [],
     level: 0,
     route: toRoute(title.toLowerCase()),

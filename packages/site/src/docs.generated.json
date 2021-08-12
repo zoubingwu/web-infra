@@ -1,0 +1,89 @@
+{
+  "nav": [
+    {
+      "title": "CLI",
+      "children": [
+        {
+          "title": "Cli",
+          "level": 1,
+          "route": "cli"
+        },
+        {
+          "title": "this is h2",
+          "level": 2,
+          "route": "cli.this-is-h2"
+        }
+      ],
+      "level": 0,
+      "route": "cli"
+    },
+    {
+      "title": "CREATE APP",
+      "children": [
+        {
+          "title": "Create App",
+          "level": 1,
+          "route": "create-app"
+        },
+        {
+          "title": "this is h2",
+          "level": 2,
+          "route": "create-app.this-is-h2"
+        }
+      ],
+      "level": 0,
+      "route": "create-app"
+    },
+    {
+      "title": "ESLINT CONFIG",
+      "children": [
+        {
+          "title": "Eslint Config",
+          "level": 1,
+          "route": "eslint-config"
+        },
+        {
+          "title": "this is h2",
+          "level": 2,
+          "route": "eslint-config.this-is-h2"
+        }
+      ],
+      "level": 0,
+      "route": "eslint-config"
+    },
+    {
+      "title": "PRETTIER CONFIG",
+      "children": [
+        {
+          "title": "Prettier Config",
+          "level": 1,
+          "route": "prettier-config"
+        },
+        {
+          "title": "this is h2",
+          "level": 2,
+          "route": "prettier-config.this-is-h2"
+        }
+      ],
+      "level": 0,
+      "route": "prettier-config"
+    },
+    {
+      "title": "WEB INFRA",
+      "children": [
+        {
+          "title": "Web Infra",
+          "level": 1,
+          "route": "web-infra"
+        },
+        {
+          "title": "this is h2",
+          "level": 2,
+          "route": "web-infra.this-is-h2"
+        }
+      ],
+      "level": 0,
+      "route": "web-infra"
+    }
+  ]
+}
