@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build",
+    "build": "yarn build:doc && tsc && vite build",
     "build:doc": "node ./scripts/crawler.mjs"
   },
   "license": "MIT",
