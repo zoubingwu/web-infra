@@ -5,8 +5,7 @@ import { fileURLToPath } from 'url'
 import { VFile } from 'vfile'
 import { visit } from 'unist-util-visit'
 import matter from 'gray-matter'
-// @ts-ignore
-import mdx from '@mdx-js/mdx' // FIXME: mdx-2.0.0-next.9 is missing some types, upgrade it as soon as newer version released
+import mdx from '@mdx-js/mdx'
 
 const filename = fileURLToPath(import.meta.url)
 const SITE_ROOT = path.resolve(path.dirname(filename), '..')

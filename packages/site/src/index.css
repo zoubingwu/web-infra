@@ -1,0 +1,94 @@
+.dark-theme .shiki.github-light {
+  display: none;
+}
+
+.light-theme .shiki.github-dark {
+  display: none;
+}
+
+pre {
+  /* In theory shiki will overwrite these, but this is to make sure there are defaults regardless */
+  background-color: white;
+  color: black;
+
+  /* Give it some space to breathe */
+  padding: 12px;
+
+  /* All code samples get a grey border, twoslash ones get a different color */
+  border-left: 1px solid #999;
+  border-bottom: 1px solid #999;
+
+  margin-bottom: 3rem;
+
+  /* Important to allow the code to move horizontally; */
+  overflow-x: auto;
+  position: relative;
+}
+pre.shiki {
+  overflow-x: auto;
+}
+pre.shiki:hover .dim {
+  opacity: 1;
+}
+pre.shiki div.dim {
+  opacity: 0.5;
+}
+pre.shiki div.dim,
+pre.shiki div.highlight {
+  margin: 0;
+  padding: 0;
+}
+pre.shiki div.highlight {
+  opacity: 1;
+  background-color: #f1f8ff;
+}
+pre.shiki div.line {
+  min-height: 1rem;
+}
+
+/** Don't show the language identifiers */
+pre.shiki .language-id {
+  display: none;
+}
+
+pre .code-container {
+  overflow: auto;
+}
+/* The try button */
+pre .code-container > a {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  border-radius: 4px;
+  border: 1px solid #719af4;
+  padding: 0 8px;
+  color: #719af4;
+  text-decoration: none;
+  opacity: 0;
+  transition-timing-function: ease;
+  transition: opacity 0.3s;
+}
+
+/* Respect no animations */
+@media (prefers-reduced-motion: reduce) {
+  pre .code-container > a {
+    transition: none;
+  }
+}
+pre .code-container > a:hover {
+  color: white;
+  background-color: #719af4;
+}
+pre .code-container:hover a {
+  opacity: 1;
+}
+
+pre code {
+  font-size: 15px;
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, Courier New, monospace;
+  white-space: pre;
+  -webkit-overflow-scrolling: touch;
+}
+pre code a {
+  text-decoration: none;
+}
