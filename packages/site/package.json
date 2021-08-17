@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "start": "vite",
+    "serve": "vite preview",
     "build": "yarn build:doc && tsc && vite build",
     "build:doc": "node ./scripts/crawler.mjs"
   },
@@ -30,6 +31,7 @@
     "unist-util-visit": "^4.0.0",
     "vfile": "^5.0.2",
     "vite": "^2.4.4",
+    "vite-plugin-inspect": "^0.2.1",
     "vite-plugin-mdx": "^3.5.6",
     "vite-plugin-windicss": "^1.2.7",
     "windicss": "^3.1.7"
