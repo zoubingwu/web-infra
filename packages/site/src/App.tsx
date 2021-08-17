@@ -8,15 +8,19 @@ import Page from './components/Page'
 import { store, persistor, useAppSelector } from './model'
 
 function Main() {
-  const dark = useAppSelector(state => state.globals.darkMode)
+  const darkMode = useAppSelector(state => state.globals.darkMode)
+
   return (
     <div
       className={clsx(
-        'flex flex-row max-w-1100px min-h-100vh m-auto',
-        dark ? 'dark-theme' : 'light-theme'
+        'min-h-100vh transition',
+        darkMode ? 'dark-theme' : 'light-theme',
+        darkMode ? 'bg-dark-gray4 text-white' : 'bg-light-100 text-dark-gray1'
       )}>
-      <Nav />
-      <Page />
+      <div className="flex flex-row max-w-1100px min-h-100vh m-auto">
+        <Nav />
+        <Page />
+      </div>
     </div>
   )
 }

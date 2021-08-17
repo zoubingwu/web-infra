@@ -1,16 +1,10 @@
 import React, { Suspense, useMemo, lazy } from 'react'
 
 import { useAppSelector } from '../model'
-
-const modules = import.meta.glob('../docs/*.mdx')
-// eslint-disable-next-line guard-for-in
-for (const path in modules) {
-  modules[path.replace('../docs/', '').replace('.mdx', '')] = modules[path]
-  delete modules[path]
-}
+import { modules } from '../docs'
 
 const Page = () => {
-  const route = useAppSelector(state => state.globals.route) || 'web infra'
+  const route = useAppSelector(state => state.globals.route)
   const Content = useMemo(
     () =>
       lazy(
@@ -20,7 +14,7 @@ const Page = () => {
   )
 
   return (
-    <main>
+    <main className="site-page flex-1 px-40px">
       <Suspense fallback="loading...">
         <Content />
       </Suspense>

@@ -6,6 +6,16 @@
   display: none;
 }
 
+.site-nav {
+  position: fixed;
+  margin-left: -999px;
+  width: 1269px;
+  height: 100vh;
+  overflow-y: auto;
+  padding-bottom: 30px;
+  padding-left: 1004px;
+}
+
 pre {
   /* In theory shiki will overwrite these, but this is to make sure there are defaults regardless */
   background-color: white;
@@ -14,15 +24,13 @@ pre {
   /* Give it some space to breathe */
   padding: 12px;
 
-  /* All code samples get a grey border, twoslash ones get a different color */
-  border-left: 1px solid #999;
-  border-bottom: 1px solid #999;
-
   margin-bottom: 3rem;
 
   /* Important to allow the code to move horizontally; */
   overflow-x: auto;
   position: relative;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(16 22 26 0.15);
 }
 pre.shiki {
   overflow-x: auto;
