@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import clsx from 'clsx'
 
 import { actions, useAppDispatch, useAppSelector } from '../model'
@@ -12,14 +12,14 @@ interface NavItemData {
 
 const NavItem: React.FC<
   NavItemData & { className?: string; style?: React.CSSProperties }
-> = ({ title, route, items, level, className, style }) => {
+> = ({ title, route, items, className, style }) => {
   const dispatch = useAppDispatch()
   const currentRoute = useAppSelector(state => state.routes.route)
   const changeRoute = useCallback(() => {
     dispatch(actions.setRoute(route))
-  }, [title])
+  }, [route])
 
-  const isExpand = currentRoute.startsWith(route)
+  const isExpand = useMemo(() => currentRoute.startsWith(route), [route])
 
   return (
     <li>
@@ -30,7 +30,7 @@ const NavItem: React.FC<
           style={style}
           className={clsx(
             'flex flex-col py-5px hover:font-bold',
-            level === 0 && 'font-bold',
+            currentRoute.includes(route) && 'font-bold',
             className
           )}>
           {title}
