@@ -6,7 +6,7 @@ import NavItem from './NavItem'
 
 const NavMenu = () => {
   return (
-    <ul>
+    <ul className="py-15px">
       {DOCS_DATA.nav.map(d => (
         <NavItem key={d.title} {...d} />
       ))}
