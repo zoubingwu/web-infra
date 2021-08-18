@@ -5,13 +5,12 @@ import { modules } from '../docs'
 
 const Page = () => {
   const route = useAppSelector(state => state.routes.route)
-  const Content = useMemo(
-    () =>
-      lazy(
-        modules[route] as () => Promise<{ default: React.ComponentType<any> }>
-      ),
-    [route]
-  )
+  const Content = useMemo(() => {
+    const topRoute = route.split('.')[0]
+    return lazy(
+      modules[topRoute] as () => Promise<{ default: React.ComponentType<any> }>
+    )
+  }, [route])
 
   return (
     <main className="site-page flex-1 px-40px">

@@ -23,8 +23,8 @@ const NavItem: React.FC<NavItemData & { className?: string }> = ({
     dispatch(actions.setRoute(route))
   }, [title])
 
-  const isExpand = route === currentRoute
-  console.log(isExpand, items, route, currentRoute)
+  const isExpand = currentRoute.startsWith(route)
+
   return (
     <li>
       <div>
@@ -44,7 +44,7 @@ const NavItem: React.FC<NavItemData & { className?: string }> = ({
             {items.map(i => (
               <NavItem
                 title={i.title}
-                route={i.route}
+                route={[route, i.route].join('.')}
                 level={i.level}
                 key={i.route}
                 className="ml-20px"
