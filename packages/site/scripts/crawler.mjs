@@ -33,9 +33,9 @@ DOCS_ENTRY.forEach(doc => {
       if (node.depth > 2) return
 
       const value = node.children[0].value
-      if (node.depth === 1) {
-        children.push(createItem(value, node.depth, toRoute(value)))
-      } else if (node.depth === 2) {
+
+      // ignore heading 1
+      if (node.depth === 2) {
         const parentTitle = findParentTitle(children, node.depth - 1)
         if (parentTitle) {
           children.push(

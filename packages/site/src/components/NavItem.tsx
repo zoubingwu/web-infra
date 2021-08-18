@@ -10,13 +10,9 @@ interface NavItemData {
   items?: NavItemData[]
 }
 
-const NavItem: React.FC<NavItemData & { className?: string }> = ({
-  title,
-  route,
-  items,
-  level,
-  className,
-}) => {
+const NavItem: React.FC<
+  NavItemData & { className?: string; style?: React.CSSProperties }
+> = ({ title, route, items, level, className, style }) => {
   const dispatch = useAppDispatch()
   const currentRoute = useAppSelector(state => state.routes.route)
   const changeRoute = useCallback(() => {
@@ -31,8 +27,9 @@ const NavItem: React.FC<NavItemData & { className?: string }> = ({
         <a
           href={'#' + route}
           onClick={changeRoute}
+          style={style}
           className={clsx(
-            'flex py-5px hover:font-bold',
+            'flex flex-col py-5px hover:font-bold',
             level === 0 && 'font-bold',
             className
           )}>
@@ -47,7 +44,7 @@ const NavItem: React.FC<NavItemData & { className?: string }> = ({
                 route={[route, i.route].join('.')}
                 level={i.level}
                 key={i.route}
-                className="ml-20px"
+                style={{ marginLeft: 20 * (i.level - 1) + 'px' }}
               />
             ))}
           </ul>
