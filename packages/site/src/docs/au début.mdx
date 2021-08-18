@@ -1,1 +1,41 @@
 # Web Infra
+
+Web Infra is a collection of tools for building web based user interface. All tools are open sourced on GitHub and available as NPM packages under `@ti-fe` scope. You can navigate through sidebars to the left to learn the details of each package.
+
+It is built by PingCAP front-end team and optimized for it's internal collaboration workflows.
+
+## About Documentation
+
+Everything is written in [TypeScript](https://www.typescriptlang.org/), an open-source language which builds on JavaScript with static type definitions and annotations.
+
+It can be statically analysed and compiled to plain JavaScript so we can eliminate most of the type errors during build time and ship products with better quality to our end users.
+
+This website, including all the code samples throughout this site are also written in TypeScript.
+
+TypeScript code looks just like modern ES2015+ code with additional type annotations, if you understand JavaScript, then you already understand most of the TypeScript code.
+
+```ts
+// variables
+const variableName: varType;
+const name: string;
+const disabled: boolean;
+
+// functions (and function variables)
+function funcName(arg1: argType, arg2: argType): returnType {}
+const funcName: (arg1: argType) => returnType;
+function split(str: string, delim: string): string[] {}
+function map<T, U>(array: T[], iterator: (item: T, index: number) => U): U[];
+
+// interfaces describe plain objects
+// (we use the convention that interfaces begin with "I")
+interface Option {
+  label: string;
+  value: string;
+}
+const option: Option = { label: "Name", value: "Gilad" };
+```
+
+For more resources about learning TypeScript, you can visit it's official page at [www.typescriptlang.org](https://www.typescriptlang.org/).
+
+## Design Principles
+
