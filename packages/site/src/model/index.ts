@@ -5,6 +5,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { createLogger } from 'redux-logger'
 
 import { globalSlice } from './globals'
+import { routesSlice } from './route'
 
 const persistConfig = {
   key: 'root',
@@ -15,6 +16,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   globals: globalSlice.reducer,
+  routes: routesSlice.reducer,
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 
@@ -51,4 +53,5 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 
 export const actions = {
   ...globalSlice.actions,
+  ...routesSlice.actions,
 }

@@ -1,18 +1,12 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-import { modules } from '../docs'
+import { createSlice } from '@reduxjs/toolkit'
 
 interface GlobalState {
   darkMode: boolean
-  route: string
 }
-
-const hash = window.location.hash.slice(1)
 
 const initialState: GlobalState = {
   darkMode:
     window?.matchMedia('(prefers-color-scheme: dark)')?.matches ?? false,
-  route: hash && modules[hash] ? hash : 'web infra',
 }
 
 export const globalSlice = createSlice({
@@ -21,10 +15,6 @@ export const globalSlice = createSlice({
   reducers: {
     toggleDarkMode(state) {
       state.darkMode = !state.darkMode
-    },
-
-    setRoute(state, action: PayloadAction<string>) {
-      state.route = action.payload
     },
   },
 })

@@ -1,22 +1,57 @@
 import React, { useCallback } from 'react'
+import clsx from 'clsx'
 
-import { actions, useAppDispatch } from '../model'
+import { actions, useAppDispatch, useAppSelector } from '../model'
 
-const NavItem: React.FC<{
+interface NavItemData {
   title: string
   route: string
-}> = ({ title, route }) => {
+  level: number
+  items?: NavItemData[]
+}
+
+const NavItem: React.FC<NavItemData & { className?: string }> = ({
+  title,
+  route,
+  items,
+  level,
+  className,
+}) => {
   const dispatch = useAppDispatch()
+  const currentRoute = useAppSelector(state => state.routes.route)
   const changeRoute = useCallback(() => {
-    dispatch(actions.setRoute(title.toLowerCase()))
+    dispatch(actions.setRoute(route))
   }, [title])
 
+  const isExpand = route === currentRoute
+  console.log(isExpand, items, route, currentRoute)
   return (
     <li>
       <div>
-        <a href={'#' + route} onClick={changeRoute}>
+        <a
+          href={'#' + route}
+          onClick={changeRoute}
+          className={clsx(
+            'flex py-5px hover:font-bold',
+            level === 0 && 'font-bold',
+            className
+          )}>
           {title}
         </a>
+
+        {isExpand && items && (
+          <ul>
+            {items.map(i => (
+              <NavItem
+                title={i.title}
+                route={i.route}
+                level={i.level}
+                key={i.route}
+                className="ml-20px"
+              />
+            ))}
+          </ul>
+        )}
       </div>
     </li>
   )

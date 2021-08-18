@@ -4,7 +4,7 @@ import { useAppSelector } from '../model'
 import { modules } from '../docs'
 
 const Page = () => {
-  const route = useAppSelector(state => state.globals.route)
+  const route = useAppSelector(state => state.routes.route)
   const Content = useMemo(
     () =>
       lazy(
