@@ -125,13 +125,11 @@ pre {
   /* Give it some space to breathe */
   padding: 12px;
 
-  margin-bottom: 3rem;
-
   /* Important to allow the code to move horizontally; */
   overflow-x: auto;
   position: relative;
   border-radius: 6px;
-  box-shadow: inset 0 0 0 1px rgba(16 22 26 0.15);
+  box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.15);
 }
 
 pre.shiki {
@@ -202,7 +200,7 @@ pre .code-container:hover a {
 }
 
 pre code {
-  font-size: 15px;
+  font-size: 13px;
   font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, Courier New, monospace;
   white-space: pre;
   -webkit-overflow-scrolling: touch;
