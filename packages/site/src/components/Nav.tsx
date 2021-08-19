@@ -1,6 +1,6 @@
 import React from 'react'
 import clsx from 'clsx'
-import { BsMoon, BsSun } from 'react-icons/bs'
+import { IoMdMoon, IoMdSunny } from 'react-icons/io'
 
 import { actions, useAppDispatch, useAppSelector } from '../model'
 import { ReactComponent as Logo } from '../assets/pingcap_logo.svg'
@@ -26,7 +26,7 @@ const Nav = () => {
         <div
           className="site-nav-button"
           onClick={() => dispatch(actions.toggleDarkMode())}>
-          {darkMode ? <BsSun /> : <BsMoon />}
+          {darkMode ? <IoMdSunny /> : <IoMdMoon />}
           <span className="ml-4">
             {darkMode ? 'Light Theme' : 'Dark Theme'}
           </span>
