@@ -13,7 +13,7 @@ const Page = () => {
   }, [topRoute])
 
   return (
-    <main className="site-page flex-1 px-40px">
+    <main className="site-main-content flex-1 px-40px py-15px">
       <Suspense fallback="loading...">
         <Content />
       </Suspense>
