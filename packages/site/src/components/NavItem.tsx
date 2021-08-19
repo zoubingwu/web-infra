@@ -12,14 +12,21 @@ interface NavItemData {
 
 const NavItem: React.FC<
   NavItemData & { className?: string; style?: React.CSSProperties }
-> = ({ title, route, items, className, style }) => {
+> = ({ title, route, items, className, style, level }) => {
   const dispatch = useAppDispatch()
   const currentRoute = useAppSelector(state => state.routes.route)
   const changeRoute = useCallback(() => {
     dispatch(actions.setRoute(route))
   }, [route])
 
-  const isExpand = useMemo(() => currentRoute.startsWith(route), [route])
+  const isExpand = useMemo(
+    () => currentRoute.startsWith(route),
+    [route, currentRoute]
+  )
+  const isBold = useMemo(
+    () => level === 0 || currentRoute.includes(route),
+    [level, route, currentRoute]
+  )
 
   return (
     <li>
@@ -30,7 +37,7 @@ const NavItem: React.FC<
           style={style}
           className={clsx(
             'flex flex-col py-5px hover:font-bold',
-            currentRoute.includes(route) && 'font-bold',
+            isBold && 'font-bold',
             className
           )}>
           {title}
