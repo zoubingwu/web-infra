@@ -4,35 +4,67 @@ Web Infra is a collection of tools for building web based user interface. All to
 
 It is built by PingCAP front-end team and optimized for it's internal collaboration workflows.
 
-## About Documentation
+## How to read documentation
 
-Everything is written in [TypeScript](https://www.typescriptlang.org/), an open-source language which builds on JavaScript with static type definitions and annotations.
-
-It can be statically analysed and compiled to plain JavaScript so we can eliminate most of the type errors during build time and ship products with better quality to our end users.
+To eliminate most of the type errors during build time and ship products with better quality to our end users, we wrote everything in [TypeScript](https://www.typescriptlang.org/), an open-source language made by Microsoft which builds on JavaScript with static type definitions and annotations, it can be statically analysed and compiled to plain JavaScript. _You don't need to use TypeScript in order to use those tools_.
 
 This website, including all the code samples throughout this site are also written in TypeScript.
 
 TypeScript code looks just like modern ES2015+ code with additional type annotations, if you understand JavaScript, then you already understand most of the TypeScript code.
 
+### A few examples
+
+Variables always have type signatures that typically appear after colons.
+
 ```ts
-// variables
-const variableName: varType;
+// variables with type annotation
 const name: string;
-const disabled: boolean;
+const active: boolean;
+```
 
-// functions (and function variables)
-function funcName(arg1: argType, arg2: argType): returnType {}
-const funcName: (arg1: argType) => returnType;
-function split(str: string, delim: string): string[] {}
-function map<T, U>(array: T[], iterator: (item: T, index: number) => U): U[];
+Interface can be used to describe the shape of objects.
 
-// interfaces describe plain objects
-// (we use the convention that interfaces begin with "I")
-interface Option {
-  label: string;
-  value: string;
+```ts
+// interface to describe the shape of objects
+interface User {
+  id: number
+  name: string
+  role: string
 }
-const option: Option = { label: "Name", value: "Gilad" };
+```
+
+All functions are annotated with what kinds of data they accept and what kinds of data they return.
+
+```ts
+function updateUser(id: number, data: Partial<User>): Promise<void> {
+  // implementation
+}
+```
+
+Sometimes, we need to use a _type variable_ to capture the type of the argument and reuse it later, this is always in all-caps.
+
+For example, a function that returns the same type of data it was provided:
+
+```ts
+function identity<T>(arg: T): T {
+  return arg;
+}
+```
+
+A class that holds a value:
+
+```ts
+class Box<T> {
+  readonly private value: T
+
+  constructor(value: T) {
+    this.value = value
+  }
+
+  public getValue(): T {
+    return this.value
+  }
+}
 ```
 
 For more resources about learning TypeScript, you can visit it's official page at [www.typescriptlang.org](https://www.typescriptlang.org/).
