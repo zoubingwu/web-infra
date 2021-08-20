@@ -17,6 +17,7 @@ export default defineConfig({
           remarkShikiTwoslash,
           {
             themes: ['github-dark', 'github-light'],
+            wrapFragments: true,
           },
         ],
       ],
