@@ -1,8 +1,64 @@
-
 # Prettier Config
 
-## this is h2
+## Introduction
 
-this is content
+[Prettier](https://github.com/prettier/prettier) is An opinionated code formatter. It ensures all the code conforms to a consistent style by parsing original code into abstract syntax tree and pretty-printing the AST.
 
-I &lt;3 Markdown and JSX
+With a proper formatter running automatically and intergrated to our workflow, it removes style related distractions when writing code, every single developper can write code in their own way they like, using tabs or spaces, semis or no semis, working on a extremely complex problem and just want to be focus so put everything all on one line, those are totally find since eventually everything will be instantly formatted when commit it to the code base.
+
+Eslint also have bunch of rules and configuration options to deal with code style issues, but we prefer a more opinionated formatter to save the energy on setting up all the stuff.
+
+The shared prettier config is published as a NPM package named `@ti-fe/prettier-config`.
+
+## Usage
+
+### Install manually
+
+To add prettier in your project, install it as a dev dependency firstly:
+
+```shell
+yarn add --dev prettier # or use whatever package manager you like
+```
+
+Then install the pre-defined configuration for the team:
+
+```shell
+yarn add --dev @ti-fe/prettier-config
+```
+
+Edit `pacakge.json` to tell prettier use this config:
+
+```jsonc
+{
+  // ...
+  "prettier": "@ti-fe/prettier-config"
+}
+```
+
+**Note: This method does not offer a way to extend the configuration to overwrite some properties from the shared configuration.**
+
+If you need to do that, import the file in a `.prettierrc.js` file and export the modifications, e.g:
+
+```js
+module.exports = {
+  ...require('@ti-fe/prettier-config'),
+  semi: true,
+}
+```
+
+## Install with cli
+
+Or you can use our cli to do the job for you, install it by:
+
+```shell
+yarn add --dev @ti-fe/cli
+```
+
+and then run:
+
+```shell
+npx wi doctor
+npx wi fix
+```
+
+The cli will check if prettier is installed and properly configured and fix everything for you, and add prettier to git pre-commit hook automatically.
