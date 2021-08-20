@@ -1,8 +1,78 @@
-
 # Eslint Config
 
-## this is h2
+## Introduction
 
-this is content
+[Eslint](https://github.com/eslint/eslint) is an open source and fully pluggable JavaScript linter that can be used to statically analyzes code, quickly find and auto fix problems. It has a powerful customization ability from preprocessing code, using custom parsers, or even writing own rules that work alongside it's built-in rules.
 
-I &lt;3 Markdown and JSX
+Code linting is heavily used in every project of ours to find problematic patterns or code that smells bad.
+
+The shared eslint config is published as a NPM package named `@ti-fe/eslint-config`.
+
+## Usage
+
+### Install manually
+
+Since we write pretty much everything in TypeScript, so we'll have to install the parser for TypeScript code.
+
+Install dependecies by running:
+
+```shell
+yarn add -dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
+```
+
+Install our shared lint config:
+
+```shell
+ yarn add --dev @ti-fe/eslint-config
+````
+
+Then create an `.eslintrc.js` in the root directory of your project, copy the followings to it:
+
+```js
+module.exports = {
+  extends: ['@ti-fe/eslint-config'],
+  env: {
+    // Your custom env variables, e.g., browser: true, jest: true
+  },
+  globals: {
+    // Your global variables
+  },
+  rules: {
+    // Your custom rules.
+  },
+}
+```
+
+### Install with cli
+
+Or you could use the cli tool to do all the job for you by install it with:
+
+```shell
+yarn add --dev @ti-fe/cli
+```
+
+and then run:
+
+```shell
+npx wi doctor
+npx wi fix
+```
+
+The cli tool will check if linter is properly installed and configured and fix it for you if not. It will also add linting process to git pre-commit hook.
+
+
+## Philosophy
+
+### Seperation of concerns
+
+import Link from '../components/Link'
+
+All coding style-related rules will be handled by [Prettier](https://prettier.io/), see <Link href="#prettier-config">prettier config</Link> for more details.
+
+### Values [ESLint's philosophy](https://eslint.org/docs/about/#philosophy)
+
+Every rules is standalone and configurable individually.
+
+### Not reinventing wheels
+
+We build our own config rule set based on [alloy config](https://github.com/AlloyTeam/eslint-config-alloy). You can also customize and build your own rule set to meet the project needs.
