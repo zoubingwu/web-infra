@@ -13,7 +13,7 @@ const Nav = () => {
   const darkMode = useAppSelector(state => state.globals.darkMode)
 
   return (
-    <div className="relative w-270px">
+    <div className="relative w-270px flex-grow-0 flex-shrink-0">
       <div
         className={clsx(
           'site-nav transition',
